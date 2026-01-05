@@ -123,9 +123,8 @@ export class AuthService {
       const admin = await this.adminService.findOneWithToken(payload.id);
       storedRefreshToken = admin.data?.refreshToken;
     } else if (type === EAuthType.USER) {
-      // TODO: Implement findOneWithToken at UsersService
-      // Test: this may get an error
-      throw new HttpException("Refresh token para users no implementado", HttpStatus.NOT_IMPLEMENTED);
+      const user = await this.usersService.findOneWithToken(payload.id);
+      storedRefreshToken = user.data?.refreshToken;
     } else {
       throw new HttpException("Tipo de usuario inválido", HttpStatus.BAD_REQUEST);
     }

@@ -5,4 +5,5 @@ export interface IPayload {
   id: string;
   role: string;
   roleId: string;
+  type?: string;
 }

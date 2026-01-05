@@ -9,6 +9,7 @@ import { NotificationsModule } from "@notifications/notifications.module";
 import { PermissionsModule } from "@permissions/permissions.module";
 import { RolesModule } from "@roles/roles.module";
 import { SettingsModule } from "@settings/settings.module";
+import { UsersModule } from "@users/users.module";
 import { typeOrmConfig } from "@config/typeorm.config";
 
 @Module({
@@ -28,6 +29,7 @@ import { typeOrmConfig } from "@config/typeorm.config";
     PermissionsModule,
     RolesModule,
     SettingsModule,
+    UsersModule,
   ],
   controllers: [],
   providers: [],

@@ -90,6 +90,7 @@ export class PermissionsService {
       settings: "Configuraciones",
       permissions: "Permisos",
       roles: "Roles",
+      users: "Pacientes",
     };
 
     return categoryNames[category] || category.charAt(0).toUpperCase() + category.slice(1);

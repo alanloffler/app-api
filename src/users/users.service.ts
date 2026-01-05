@@ -80,6 +80,29 @@ export class UsersService {
     return ApiResponse.success<User>("Usuario encontrado", user);
   }
 
+  async findOneWithToken(id: string): Promise<ApiResponse<User>> {
+    const user = await this.userRepository.findOne({
+      where: { id },
+      select: [
+        "id",
+        "ic",
+        "userName",
+        "firstName",
+        "lastName",
+        "email",
+        "phoneNumber",
+        "role",
+        "roleId",
+        "createdAt",
+        "updatedAt",
+        "refreshToken",
+      ],
+    });
+    if (!user) throw new HttpException("Usuario no encontrado", HttpStatus.NOT_FOUND);
+
+    return ApiResponse.success<User>("Usuario encontrado", user);
+  }
+
   // TODO: Implement validations as AdminService
   async update(id: string, updateUserDto: UpdateUserDto): Promise<ApiResponse<User>> {
     const result = await this.userRepository.update(id, updateUserDto);

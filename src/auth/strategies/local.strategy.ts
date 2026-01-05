@@ -7,6 +7,7 @@ import { Strategy } from "passport-local";
 import type { IPayload } from "@auth/interfaces/payload.interface";
 import { Admin } from "@admin/entities/admin.entity";
 import { AdminService } from "@admin/admin.service";
+import { EAuthType } from "@auth/enums/auth-type.enum";
 import { User } from "@users/entities/user.entity";
 import { UsersService } from "@users/users.service";
 
@@ -28,9 +29,9 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
 
     let user: Admin | User | null = null;
 
-    if (type === "user") {
+    if (type === EAuthType.USER) {
       user = await this.userService.findOneByEmail(email);
-    } else if (type === "admin") {
+    } else if (type === EAuthType.ADMIN) {
       user = await this.adminService.findOneByEmail(email);
     } else {
       throw new HttpException("Credenciales inválidas (type)", HttpStatus.UNAUTHORIZED);

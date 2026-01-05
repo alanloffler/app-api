@@ -9,6 +9,8 @@ import type { IRequest } from "@auth/interfaces/request.interface";
 import type { IToken } from "@auth/interfaces/token.interface";
 import { AdminService } from "@admin/admin.service";
 import { ApiResponse } from "@common/helpers/api-response.helper";
+import { EAuthType } from "@auth/enums/auth-type.enum";
+import { UsersService } from "@users/users.service";
 
 @Injectable()
 export class AuthService {
@@ -16,19 +18,23 @@ export class AuthService {
     private readonly adminService: AdminService,
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
+    private readonly usersService: UsersService,
   ) {}
 
   async signIn(req: IRequest, res: Response): Promise<ApiResponse<IPayload>> {
+    const authType = req.body.type;
+
     const payload = {
       id: req.user.id,
       email: req.user.email,
       role: req.user.role,
       roleId: req.user.roleId,
+      type: authType,
     };
 
     const tokens = await this.getTokens(payload, true);
 
-    await this.updateRefreshToken(payload.id, tokens.refreshToken);
+    await this.updateRefreshToken(payload.id, tokens.refreshToken, authType);
 
     this.setTokenCookie(res, tokens);
 
@@ -86,26 +92,47 @@ export class AuthService {
     }
   }
 
-  async updateRefreshToken(id: string, refreshToken?: string): Promise<void> {
-    const updateToken = await this.adminService.update(id, { refreshToken });
-    if (!updateToken) throw new HttpException("Error al actualizar token", HttpStatus.BAD_REQUEST);
+  async updateRefreshToken(id: string, refreshToken?: string, type?: string): Promise<void> {
+    if (type === EAuthType.ADMIN) {
+      const updateToken = await this.adminService.update(id, { refreshToken });
+      if (!updateToken) throw new HttpException("Error al actualizar token", HttpStatus.BAD_REQUEST);
+      return;
+    }
 
-    return;
+    if (type === EAuthType.USER) {
+      const updateToken = await this.usersService.update(id, { refreshToken });
+      if (!updateToken) throw new HttpException("Error al actualizar token", HttpStatus.BAD_REQUEST);
+      return;
+    }
+
+    throw new HttpException("Tipo de usuario inválido", HttpStatus.BAD_REQUEST);
   }
 
   async signOut(payload: IPayload, res: Response): Promise<ApiResponse<null>> {
-    await this.updateRefreshToken(payload.id, "");
+    await this.updateRefreshToken(payload.id, "", payload.type);
     this.clearTokenCookie(res);
 
     return ApiResponse.success<null>("Deslogueo exitoso", null);
   }
 
   async refreshToken(payload: IPayload, refreshToken: string, res: Response) {
-    const admin = await this.adminService.findOneWithToken(payload.id);
+    const type = payload.type;
+    let storedRefreshToken: string | undefined;
 
-    if (!admin.data?.refreshToken) throw new HttpException("Token de actualización no existe", HttpStatus.BAD_REQUEST);
+    if (type === EAuthType.ADMIN) {
+      const admin = await this.adminService.findOneWithToken(payload.id);
+      storedRefreshToken = admin.data?.refreshToken;
+    } else if (type === EAuthType.USER) {
+      // TODO: Implement findOneWithToken at UsersService
+      // Test: this may get an error
+      throw new HttpException("Refresh token para users no implementado", HttpStatus.NOT_IMPLEMENTED);
+    } else {
+      throw new HttpException("Tipo de usuario inválido", HttpStatus.BAD_REQUEST);
+    }
 
-    if (admin.data.refreshToken !== refreshToken)
+    if (!storedRefreshToken) throw new HttpException("Token de actualización no existe", HttpStatus.BAD_REQUEST);
+
+    if (storedRefreshToken !== refreshToken)
       throw new HttpException("Token de actualización inválido", HttpStatus.UNAUTHORIZED);
 
     const shouldRotate = false;
@@ -113,7 +140,7 @@ export class AuthService {
     const tokens = await this.getTokens(payload, shouldRotate);
 
     if (shouldRotate) {
-      await this.updateRefreshToken(admin.data.id, tokens.refreshToken);
+      await this.updateRefreshToken(payload.id, tokens.refreshToken, type);
     }
 
     this.setTokenCookie(res, {
@@ -125,6 +152,26 @@ export class AuthService {
       accessToken: tokens.accessToken,
       refreshToken: shouldRotate ? tokens.refreshToken : refreshToken,
     });
+  }
+
+  async getMe(payload: IPayload) {
+    const type = payload.type;
+
+    if (type === EAuthType.ADMIN) {
+      const admin = await this.adminService.getAdmin(payload.id);
+      if (!admin) throw new HttpException("Administrador no encontrado", HttpStatus.NOT_FOUND);
+
+      return ApiResponse.success("Administrador encontrado", admin);
+    }
+
+    if (type === EAuthType.USER) {
+      const user = await this.usersService.getUser(payload.id);
+      if (!user) throw new HttpException("Usuario no encontrado", HttpStatus.NOT_FOUND);
+
+      return ApiResponse.success("Usuario encontrado", user);
+    }
+
+    throw new HttpException("Tipo de usuario inválido", HttpStatus.BAD_REQUEST);
   }
 
   async getAdmin(payload: IPayload) {

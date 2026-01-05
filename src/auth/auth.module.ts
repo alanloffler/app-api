@@ -13,6 +13,7 @@ import { JwtStrategy } from "@auth/strategies/jwt.strategy";
 import { LocalStrategy } from "@auth/strategies/local.strategy";
 import { PermissionsGuard } from "@auth/guards/permissions.guard";
 import { Role } from "@roles/entities/role.entity";
+import { UsersModule } from "@users/users.module";
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { Role } from "@roles/entities/role.entity";
     }),
     PassportModule,
     TypeOrmModule.forFeature([Role]),
+    UsersModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, JwtRefreshStrategy, LocalStrategy, PermissionsGuard],

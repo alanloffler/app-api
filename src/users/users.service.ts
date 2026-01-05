@@ -37,19 +37,46 @@ export class UsersService {
     return ApiResponse.created<User>("Usuario creado", saveUser);
   }
 
+  // TODO: Implement db query
   findAll() {
     return `This action returns all users`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findOne(id: string): Promise<ApiResponse<User>> {
+    const user = await this.userRepository.findOne({
+      where: { id },
+      select: [
+        "id",
+        "ic",
+        "userName",
+        "firstName",
+        "lastName",
+        "email",
+        "phoneNumber",
+        "role",
+        "roleId",
+        "createdAt",
+        "updatedAt",
+      ],
+    });
+    if (!user) throw new HttpException("Usuario no encontrado", HttpStatus.NOT_FOUND);
+
+    return ApiResponse.success<User>("Usuario encontrado", user);
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  // TODO: Implement validations as AdminService
+  async update(id: string, updateUserDto: UpdateUserDto): Promise<ApiResponse<User>> {
+    const result = await this.userRepository.update(id, updateUserDto);
+    if (!result) throw new HttpException("Error al actualizar usuario", HttpStatus.BAD_REQUEST);
+
+    const updatedUser = await this.userRepository.findOne({ where: { id } });
+    if (!updatedUser) throw new HttpException("Usuario no encontrado", HttpStatus.NOT_FOUND);
+
+    return ApiResponse.success<User>("Usuario actualizado", updatedUser);
   }
 
-  remove(id: number) {
+  // TODO: Implement logic
+  remove(id: string) {
     return `This action removes a #${id} user`;
   }
 
@@ -57,6 +84,15 @@ export class UsersService {
     const admin = await this.userRepository.findOne({ where: { email } });
 
     return admin;
+  }
+
+  public async getUser(id: string): Promise<User | null> {
+    const user = await this.userRepository.findOne({
+      where: { id },
+      select: ["id", "ic", "email", "userName", "firstName", "lastName", "role"],
+    });
+
+    return user;
   }
 
   public async checkEmailAvailability(email: string): Promise<ApiResponse<boolean>> {

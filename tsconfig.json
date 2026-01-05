@@ -29,7 +29,8 @@
       "@notifications/*": ["src/notifications/*"],
       "@permissions/*": ["./src/permissions/*"],
       "@roles/*": ["./src/roles/*"],
-      "@settings/*": ["./src/settings/*"]
+      "@settings/*": ["./src/settings/*"],
+      "@users/*": ["./src/users/*"]
     }
   }
 }

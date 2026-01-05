@@ -37,9 +37,25 @@ export class UsersService {
     return ApiResponse.created<User>("Usuario creado", saveUser);
   }
 
-  // TODO: Implement db query
-  findAll() {
-    return `This action returns all users`;
+  async findAll(): Promise<ApiResponse<User[]>> {
+    const users = await this.userRepository.find({
+      select: [
+        "id",
+        "ic",
+        "userName",
+        "firstName",
+        "lastName",
+        "email",
+        "phoneNumber",
+        "role",
+        "roleId",
+        "createdAt",
+        "updatedAt",
+      ],
+    });
+    if (!users) throw new HttpException("Usuarios no encontrados", HttpStatus.NOT_FOUND);
+
+    return ApiResponse.success<User[]>("Usuarios encontrados", users);
   }
 
   async findOne(id: string): Promise<ApiResponse<User>> {

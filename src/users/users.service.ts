@@ -53,6 +53,12 @@ export class UsersService {
     return `This action removes a #${id} user`;
   }
 
+  public async findOneByEmail(email: string) {
+    const admin = await this.userRepository.findOne({ where: { email } });
+
+    return admin;
+  }
+
   public async checkEmailAvailability(email: string): Promise<ApiResponse<boolean>> {
     const user = await this.userRepository.findOne({ where: { email } });
     return ApiResponse.success<boolean>("Disponibilidad de email", user ? false : true);

@@ -143,4 +143,9 @@ export class UsersService {
     const user = await this.userRepository.findOne({ where: { ic } });
     return ApiResponse.success<boolean>("Disponibilidad de DNI", user ? false : true);
   }
+
+  public async checkUsernameAvailability(userName: string): Promise<ApiResponse<boolean>> {
+    const username = await this.userRepository.findOne({ where: { userName } });
+    return ApiResponse.success<boolean>("Disponibilidad de nombre de usuario", username ? false : true);
+  }
 }

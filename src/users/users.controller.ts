@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from "@nestjs/common";
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, ParseUUIDPipe } from "@nestjs/common";
 
 import { CreateUserDto } from "@users/dto/create-user.dto";
 import { JwtAuthGuard } from "@auth/guards/jwt-auth.guard";
@@ -12,17 +12,25 @@ import { UsersService } from "@users/users.service";
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  // @RequiredPermissions("users-create")
+  @RequiredPermissions("users-create")
   @Post()
   create(@Body() user: CreateUserDto) {
     return this.usersService.create(user);
   }
 
+  @RequiredPermissions("users-view")
   @Get()
   findAll() {
     return this.usersService.findAll();
   }
 
+  @RequiredPermissions("users-view")
+  @Get("soft-removed")
+  findAllSoftRemoved() {
+    return this.usersService.findAllSoftRemoved();
+  }
+
+  @RequiredPermissions("users-view")
   @Get(":id")
   findOne(@Param("id") id: string) {
     return this.usersService.findOne(id);
@@ -31,6 +39,12 @@ export class UsersController {
   @Patch(":id")
   update(@Param("id") id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(id, updateUserDto);
+  }
+
+  @RequiredPermissions("admin-delete")
+  @Delete("soft-remove/:id")
+  softRemove(@Param("id", ParseUUIDPipe) id: string) {
+    return this.usersService.softRemove(id);
   }
 
   @Delete(":id")

@@ -170,9 +170,13 @@ export class UsersService {
     return ApiResponse.removed<User>("Paciente eliminado", result);
   }
 
-  // TODO: Implement logic
-  remove(id: string) {
-    return `This action removes a #${id} user`;
+  async remove(id: string): Promise<ApiResponse<User>> {
+    const userToRemove = await this.findOneById(id);
+
+    const result = await this.userRepository.remove(userToRemove);
+    if (!result) throw new HttpException("Error al eliminar paciente", HttpStatus.BAD_REQUEST);
+
+    return ApiResponse.removed<User>("Paciente eliminado", result);
   }
 
   async restore(id: string): Promise<ApiResponse<User>> {
@@ -192,9 +196,9 @@ export class UsersService {
   }
 
   public async findOneByEmail(email: string) {
-    const admin = await this.userRepository.findOne({ where: { email } });
+    const user = await this.userRepository.findOne({ where: { email } });
 
-    return admin;
+    return user;
   }
 
   public async getUser(id: string): Promise<User | null> {

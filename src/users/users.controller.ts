@@ -31,6 +31,12 @@ export class UsersController {
   }
 
   @RequiredPermissions("users-view")
+  @Get(":id/credentials")
+  findOneWithCredentials(@Param("id", ParseUUIDPipe) id: string) {
+    return this.usersService.findOneWithCredentials(id);
+  }
+
+  @RequiredPermissions("users-view")
   @Get(":id")
   findOne(@Param("id") id: string) {
     return this.usersService.findOne(id);

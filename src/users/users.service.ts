@@ -127,6 +127,15 @@ export class UsersService {
     return ApiResponse.success<User>("Paciente encontrado", user);
   }
 
+  async findOneWithCredentials(id: string): Promise<ApiResponse<User>> {
+    const user = await this.userRepository.findOne({
+      where: { id },
+    });
+    if (!user) throw new HttpException("Paciente no encontrado", HttpStatus.NOT_FOUND);
+
+    return ApiResponse.success<User>("Paciente encontrado", user);
+  }
+
   async findOneWithToken(id: string): Promise<ApiResponse<User>> {
     const user = await this.userRepository.findOne({
       where: { id },

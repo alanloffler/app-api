@@ -175,6 +175,22 @@ export class UsersService {
     return `This action removes a #${id} user`;
   }
 
+  async restore(id: string): Promise<ApiResponse<User>> {
+    const userToRestore = await this.userRepository.findOne({
+      where: { id },
+      withDeleted: true,
+    });
+
+    if (!userToRestore) throw new HttpException("Paciente no encontrado", HttpStatus.NOT_FOUND);
+
+    const result = await this.userRepository.restore(userToRestore.id);
+    if (!result) throw new HttpException("Error al restaurar paciente", HttpStatus.BAD_REQUEST);
+
+    const restoredUser = await this.findOneById(id);
+
+    return ApiResponse.success<User>("Paciente restaurado", restoredUser);
+  }
+
   public async findOneByEmail(email: string) {
     const admin = await this.userRepository.findOne({ where: { email } });
 

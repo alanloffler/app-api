@@ -47,12 +47,19 @@ export class UsersController {
     return this.usersService.update(id, updateUserDto);
   }
 
-  @RequiredPermissions("admin-delete")
+  @RequiredPermissions("users-delete")
   @Delete("soft-remove/:id")
   softRemove(@Param("id", ParseUUIDPipe) id: string) {
     return this.usersService.softRemove(id);
   }
 
+  @RequiredPermissions("users-restore")
+  @Patch("restore/:id")
+  restore(@Param("id", ParseUUIDPipe) id: string) {
+    return this.usersService.restore(id);
+  }
+
+  @RequiredPermissions("users-delete-hard")
   @Delete(":id")
   remove(@Param("id") id: string) {
     return this.usersService.remove(id);

@@ -103,6 +103,30 @@ export class UsersService {
     return ApiResponse.success<User>("Paciente encontrado", user);
   }
 
+  async findOneSoftRemoved(id: string): Promise<ApiResponse<User>> {
+    const user = await this.userRepository.findOne({
+      where: { id },
+      select: [
+        "id",
+        "ic",
+        "userName",
+        "firstName",
+        "lastName",
+        "email",
+        "phoneNumber",
+        "role",
+        "roleId",
+        "createdAt",
+        "updatedAt",
+        "deletedAt",
+      ],
+      withDeleted: true,
+    });
+    if (!user) throw new HttpException("Paciente no encontrado", HttpStatus.NOT_FOUND);
+
+    return ApiResponse.success<User>("Paciente encontrado", user);
+  }
+
   async findOneWithToken(id: string): Promise<ApiResponse<User>> {
     const user = await this.userRepository.findOne({
       where: { id },

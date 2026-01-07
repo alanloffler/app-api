@@ -36,6 +36,12 @@ export class UsersController {
     return this.usersService.findOne(id);
   }
 
+  @RequiredPermissions("users-view")
+  @Get(":id/soft-removed")
+  findOneSoftRemoved(@Param("id", ParseUUIDPipe) id: string) {
+    return this.usersService.findOneSoftRemoved(id);
+  }
+
   @Patch(":id")
   update(@Param("id") id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(id, updateUserDto);

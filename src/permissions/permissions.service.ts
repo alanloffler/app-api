@@ -87,9 +87,10 @@ export class PermissionsService {
   private getCategoryName(category: string): string {
     const categoryNames: Record<string, string> = {
       admin: "Administradores",
-      settings: "Configuraciones",
+      calendar: "Agenda",
       permissions: "Permisos",
       roles: "Roles",
+      settings: "Configuraciones",
       users: "Pacientes",
     };
 

@@ -39,6 +39,7 @@ export class EventsService {
   }
 
   async findAll() {
+    // throw new HttpException("Error al obtener los turnos", HttpStatus.BAD_REQUEST);
     const events = await this.eventRepository.find({
       relations: ["user", "user.role"],
       select: {
@@ -56,7 +57,7 @@ export class EventsService {
         },
       },
     });
-    if (!events) throw new HttpException("Turnos no encontrados", HttpStatus.NOT_FOUND);
+    if (!events) throw new HttpException("Error al obtener los turnos", HttpStatus.NOT_FOUND);
 
     return ApiResponse.success<Event[]>("Turnos encontrados", events);
   }

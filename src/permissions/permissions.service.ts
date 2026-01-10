@@ -88,6 +88,7 @@ export class PermissionsService {
     const categoryNames: Record<string, string> = {
       admin: "Administradores",
       calendar: "Agenda",
+      events: "Turnos",
       permissions: "Permisos",
       roles: "Roles",
       settings: "Configuraciones",

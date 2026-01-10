@@ -6,18 +6,27 @@ import { ApiResponse } from "@common/helpers/api-response.helper";
 import { CreateEventDto } from "@events/dto/create-event.dto";
 import { Event } from "@events/entities/event.entity";
 import { UpdateEventDto } from "@events/dto/update-event.dto";
+import { UsersService } from "@users/users.service";
 
 @Injectable()
 export class EventsService {
   constructor(
     @InjectRepository(Event)
     private readonly eventRepository: Repository<Event>,
+    private readonly userService: UsersService,
   ) {}
 
   async create(createEventDto: CreateEventDto) {
-    // TODO: 1. Check if event already exists (by startDate???)
-    // TODO: 2. Check if user exists
-    // TODO: 3. Check if professional exists
+    const eventExists = await this.checkEventExistence(createEventDto.startDate);
+
+    if (eventExists) {
+      throw new HttpException("El turno ya existe en la agenda", HttpStatus.BAD_REQUEST);
+    }
+
+    // Already handle http exception
+    await this.userService.findOneById(createEventDto.userId);
+
+    // TODO: 3. Check if professional exists (must create module!)
 
     const newEvent = this.eventRepository.create(createEventDto);
     const saveEvent = await this.eventRepository.save(newEvent);
@@ -29,10 +38,27 @@ export class EventsService {
     return ApiResponse.created<Event>("Turno creado", saveEvent);
   }
 
-  findAll() {
-    return this.eventRepository.find({
-      relations: ["user"],
+  async findAll() {
+    const events = await this.eventRepository.find({
+      relations: ["user", "user.role"],
+      select: {
+        user: {
+          id: true,
+          ic: true,
+          phoneNumber: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+          role: {
+            name: true,
+            value: true,
+          },
+        },
+      },
     });
+    if (!events) throw new HttpException("Turnos no encontrados", HttpStatus.NOT_FOUND);
+
+    return ApiResponse.success<Event[]>("Turnos encontrados", events);
   }
 
   findOne(id: string) {
@@ -45,5 +71,11 @@ export class EventsService {
 
   remove(id: string) {
     return `This action removes a #${id} event`;
+  }
+
+  // Private methods
+  private async checkEventExistence(startDate: Date): Promise<boolean> {
+    const event = await this.eventRepository.findOne({ where: { startDate } });
+    return event ? true : false;
   }
 }

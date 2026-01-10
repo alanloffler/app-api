@@ -234,7 +234,7 @@ export class UsersService {
     return ApiResponse.success<boolean>("Disponibilidad de nombre de usuario", username ? false : true);
   }
 
-  private async findOneById(id: string): Promise<User> {
+  public async findOneById(id: string): Promise<User> {
     const user = await this.userRepository.findOne({ where: { id } });
     if (!user) throw new HttpException("Paciente no encontrado", HttpStatus.NOT_FOUND);
 

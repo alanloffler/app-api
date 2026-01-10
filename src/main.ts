@@ -1,6 +1,6 @@
 import cookieParser from "cookie-parser";
-import { NestFactory } from "@nestjs/core";
-import { ValidationPipe } from "@nestjs/common";
+import { NestFactory, Reflector } from "@nestjs/core";
+import { ClassSerializerInterceptor, ValidationPipe } from "@nestjs/common";
 
 import { AppModule } from "@/app.module";
 
@@ -17,7 +17,8 @@ async function bootstrap() {
     origin: ["http://localhost:3000", "http://localhost:5173", "https://react-auth-reactive.vercel.app"],
   });
   app.use(cookieParser());
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(new ValidationPipe({ transform: true }));
+  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
   await app.listen(PORT);
 }

@@ -1,7 +1,8 @@
+import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Injectable } from "@nestjs/common";
 import { Repository } from "typeorm";
 
+import { ApiResponse } from "@common/helpers/api-response.helper";
 import { CreateEventDto } from "@events/dto/create-event.dto";
 import { Event } from "@events/entities/event.entity";
 import { UpdateEventDto } from "@events/dto/update-event.dto";
@@ -13,8 +14,19 @@ export class EventsService {
     private readonly eventRepository: Repository<Event>,
   ) {}
 
-  create(createEventDto: CreateEventDto) {
-    return "This action adds a new event";
+  async create(createEventDto: CreateEventDto) {
+    // TODO: 1. Check if event already exists (by startDate???)
+    // TODO: 2. Check if user exists
+    // TODO: 3. Check if professional exists
+
+    const newEvent = this.eventRepository.create(createEventDto);
+    const saveEvent = await this.eventRepository.save(newEvent);
+
+    if (!saveEvent) {
+      throw new HttpException("Error al crear el turno", HttpStatus.BAD_REQUEST);
+    }
+
+    return ApiResponse.created<Event>("Turno creado", saveEvent);
   }
 
   findAll() {
@@ -23,15 +35,15 @@ export class EventsService {
     });
   }
 
-  findOne(id: number) {
+  findOne(id: string) {
     return `This action returns a #${id} event`;
   }
 
-  update(id: number, updateEventDto: UpdateEventDto) {
+  update(id: string, updateEventDto: UpdateEventDto) {
     return `This action updates a #${id} event`;
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return `This action removes a #${id} event`;
   }
 }

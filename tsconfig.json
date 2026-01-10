@@ -26,6 +26,7 @@
       "@auth/*": ["./src/auth/*"],
       "@common/*": ["./src/common/*"],
       "@config/*": ["./src/config/*"],
+      "@events/*": ["./src/events/*"],
       "@notifications/*": ["src/notifications/*"],
       "@permissions/*": ["./src/permissions/*"],
       "@roles/*": ["./src/roles/*"],

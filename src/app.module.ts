@@ -5,6 +5,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { AdminModule } from "@admin/admin.module";
 import { AuthModule } from "@auth/auth.module";
 import { CacheConfigModule } from "@config/cache-config.module";
+import { EventsModule } from "@events/events.module";
 import { NotificationsModule } from "@notifications/notifications.module";
 import { PermissionsModule } from "@permissions/permissions.module";
 import { RolesModule } from "@roles/roles.module";
@@ -25,6 +26,7 @@ import { typeOrmConfig } from "@config/typeorm.config";
     }),
     AdminModule,
     AuthModule,
+    EventsModule,
     NotificationsModule,
     PermissionsModule,
     RolesModule,

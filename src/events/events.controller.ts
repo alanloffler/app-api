@@ -33,6 +33,7 @@ export class EventsController {
     return this.eventsService.update(id, updateEventDto);
   }
 
+  @RequiredPermissions("events-delete-hard")
   @Delete(":id")
   remove(@Param("id") id: string) {
     return this.eventsService.remove(id);

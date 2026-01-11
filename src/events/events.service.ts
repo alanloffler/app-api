@@ -70,11 +70,23 @@ export class EventsService {
     return `This action updates a #${id} event`;
   }
 
-  remove(id: string) {
-    return `This action removes a #${id} event`;
+  async remove(id: string): Promise<ApiResponse<Event>> {
+    const userToRemove = await this.findOneById(id);
+
+    const result = await this.eventRepository.remove(userToRemove);
+    if (!result) throw new HttpException("Error al eliminar turno", HttpStatus.BAD_REQUEST);
+
+    return ApiResponse.removed<Event>("Turno eliminado", result);
   }
 
   // Private methods
+  private async findOneById(id: string): Promise<Event> {
+    const event = await this.eventRepository.findOne({ where: { id } });
+    if (!event) throw new HttpException("Turno no encontrado", HttpStatus.NOT_FOUND);
+
+    return event;
+  }
+
   private async checkEventExistence(startDate: Date): Promise<boolean> {
     const event = await this.eventRepository.findOne({ where: { startDate } });
     return event ? true : false;

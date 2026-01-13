@@ -18,11 +18,13 @@ export class EventsController {
     return this.eventsService.create(createEventDto);
   }
 
+  @RequiredPermissions("events-view")
   @Get()
   findAll() {
     return this.eventsService.findAll();
   }
 
+  @RequiredPermissions("events-view")
   @Get(":id")
   findOne(@Param("id", ParseUUIDPipe) id: string) {
     return this.eventsService.findOne(id);

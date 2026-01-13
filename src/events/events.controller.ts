@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from "@nestjs/common";
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, ParseUUIDPipe } from "@nestjs/common";
 
 import { CreateEventDto } from "@events/dto/create-event.dto";
 import { EventsService } from "@events/events.service";
@@ -24,18 +24,19 @@ export class EventsController {
   }
 
   @Get(":id")
-  findOne(@Param("id") id: string) {
+  findOne(@Param("id", ParseUUIDPipe) id: string) {
     return this.eventsService.findOne(id);
   }
 
+  @RequiredPermissions("events-update")
   @Patch(":id")
-  update(@Param("id") id: string, @Body() updateEventDto: UpdateEventDto) {
+  update(@Param("id", ParseUUIDPipe) id: string, @Body() updateEventDto: UpdateEventDto) {
     return this.eventsService.update(id, updateEventDto);
   }
 
   @RequiredPermissions("events-delete-hard")
   @Delete(":id")
-  remove(@Param("id") id: string) {
+  remove(@Param("id", ParseUUIDPipe) id: string) {
     return this.eventsService.remove(id);
   }
 }

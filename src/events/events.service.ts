@@ -66,8 +66,17 @@ export class EventsService {
     return `This action returns a #${id} event`;
   }
 
-  update(id: string, updateEventDto: UpdateEventDto) {
-    return `This action updates a #${id} event`;
+  async update(id: string, updateEventDto: UpdateEventDto): Promise<ApiResponse<Event>> {
+    await this.findOneById(id);
+
+    // TODO: check if hour slot is available to not overwrite
+
+    const result = await this.eventRepository.update(id, updateEventDto);
+    if (!result) throw new HttpException("Error al actualizar turno", HttpStatus.BAD_REQUEST);
+
+    const updatedEvent = await this.findOneById(id);
+
+    return ApiResponse.success<Event>("Turno actualizado", updatedEvent);
   }
 
   async remove(id: string): Promise<ApiResponse<Event>> {

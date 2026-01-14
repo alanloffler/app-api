@@ -24,7 +24,7 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
-  @RequiredPermissions("users-view")
+  @RequiredPermissions(["professional-view", "patient-view"], "some")
   @Get("soft-removed/:role")
   findAllSoftRemoved(@Param("role") role: string) {
     return this.usersService.findAllSoftRemoved(role);

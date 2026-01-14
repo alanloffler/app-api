@@ -17,14 +17,13 @@ export class PermissionsGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const requiredPermissions = this.reflector.getAllAndOverride<string[]>(PERMISSIONS_KEY, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
+    const metadata = this.reflector.getAllAndOverride(PERMISSIONS_KEY, [context.getHandler(), context.getClass()]);
 
-    if (!requiredPermissions) {
+    if (!metadata) {
       return true;
     }
+
+    const { permissions, mode } = metadata;
 
     const request = context.switchToHttp().getRequest();
     const user = request.user;
@@ -39,10 +38,18 @@ export class PermissionsGuard implements CanActivate {
       throw new HttpException("Tu rol no posee permisos asignados", HttpStatus.FORBIDDEN);
     }
 
-    const hasPermissions = requiredPermissions.some((permission) => userPermissions.includes(permission));
+    let hasPermissions: boolean;
+    if (mode === "some") {
+      hasPermissions = permissions.some((permission: string) => userPermissions.includes(permission));
+    } else {
+      hasPermissions = permissions.every((permission: string) => userPermissions.includes(permission));
+    }
 
     if (!hasPermissions) {
-      throw new HttpException(`El usuario no posee el permiso necesario: ${requiredPermissions}`, HttpStatus.FORBIDDEN);
+      throw new HttpException(
+        `El usuario no posee los permisos necesarios: ${permissions.join(", ")}`,
+        HttpStatus.FORBIDDEN,
+      );
     }
 
     return hasPermissions;

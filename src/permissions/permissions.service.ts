@@ -91,6 +91,7 @@ export class PermissionsService {
       events: "Turnos",
       patients: "Pacientes",
       permissions: "Permisos",
+      professionals: "Profesionales",
       roles: "Roles",
       settings: "Configuraciones",
       users: "Pacientes",

@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { LessThan, MoreThan, Not, Repository } from "typeorm";
 
 import { ApiResponse } from "@common/helpers/api-response.helper";
 import { CreateEventDto } from "@events/dto/create-event.dto";
@@ -17,9 +17,9 @@ export class EventsService {
   ) {}
 
   async create(createEventDto: CreateEventDto) {
-    const eventExists = await this.checkEventExistence(createEventDto.startDate);
+    const slotAvailable = await this.checkSlotAvailable(createEventDto);
 
-    if (eventExists) {
+    if (!slotAvailable) {
       throw new HttpException("El turno ya existe en la agenda", HttpStatus.BAD_REQUEST);
     }
 
@@ -70,9 +70,24 @@ export class EventsService {
   }
 
   async update(id: string, updateEventDto: UpdateEventDto): Promise<ApiResponse<Event>> {
-    await this.findOneById(id);
+    const event = await this.findOneById(id);
 
-    // TODO: check if hour slot is available to not overwrite
+    const newStart = updateEventDto.startDate || event.startDate;
+    const newEnd = updateEventDto.endDate || event.endDate;
+    const newProfessional = updateEventDto.professionalId || event.professionalId;
+
+    const slotAvailable = await this.checkSlotAvailable(
+      {
+        professionalId: newProfessional,
+        startDate: newStart,
+        endDate: newEnd,
+      },
+      event.id,
+    );
+
+    if (!slotAvailable) {
+      throw new HttpException("El turno se superpone con otro existente", HttpStatus.BAD_REQUEST);
+    }
 
     const result = await this.eventRepository.update(id, updateEventDto);
     if (!result) throw new HttpException("Error al actualizar turno", HttpStatus.BAD_REQUEST);
@@ -99,8 +114,21 @@ export class EventsService {
     return event;
   }
 
-  private async checkEventExistence(startDate: Date): Promise<boolean> {
-    const event = await this.eventRepository.findOne({ where: { startDate } });
-    return event ? true : false;
+  // Check to not overlap events, by professional id, start date and end date
+  // TODO: check if professional exists (must create module!)
+  private async checkSlotAvailable(
+    data: { professionalId: string; startDate: Date; endDate: Date },
+    excludeId?: string,
+  ): Promise<boolean> {
+    const overlappingEvent = await this.eventRepository.findOne({
+      where: {
+        professionalId: data.professionalId,
+        startDate: LessThan(data.endDate),
+        endDate: MoreThan(data.startDate),
+        ...(excludeId && { id: Not(excludeId) }),
+      },
+    });
+
+    return !overlappingEvent;
   }
 }

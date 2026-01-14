@@ -58,7 +58,7 @@ export class UsersService {
     return ApiResponse.success<User[]>("Pacientes encontrados", users);
   }
 
-  async findAllSoftRemoved(): Promise<ApiResponse<User[]>> {
+  async findAllSoftRemoved(role: string): Promise<ApiResponse<User[]>> {
     const users = await this.userRepository.find({
       select: [
         "id",
@@ -74,6 +74,12 @@ export class UsersService {
         "updatedAt",
         "deletedAt",
       ],
+      relations: ["role"],
+      where: {
+        role: {
+          value: role,
+        },
+      },
       withDeleted: true,
     });
     if (!users) throw new HttpException("Pacientes no encontrados", HttpStatus.NOT_FOUND);

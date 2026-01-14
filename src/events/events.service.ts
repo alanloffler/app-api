@@ -62,8 +62,11 @@ export class EventsService {
     return ApiResponse.success<Event[]>("Turnos encontrados", events);
   }
 
-  findOne(id: string) {
-    return `This action returns a #${id} event`;
+  async findOne(id: string): Promise<ApiResponse<Event>> {
+    const event = await this.eventRepository.findOneBy({ id });
+    if (!event) throw new HttpException("Turno no encontrado", HttpStatus.NOT_FOUND);
+
+    return ApiResponse.success<Event>("Turno encontrado", event);
   }
 
   async update(id: string, updateEventDto: UpdateEventDto): Promise<ApiResponse<Event>> {

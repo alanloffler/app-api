@@ -1,5 +1,6 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, ParseUUIDPipe } from "@nestjs/common";
+import { Controller, Get, Post, Body, Patch, Param, Request, Delete, UseGuards, ParseUUIDPipe } from "@nestjs/common";
 
+import type { IRequest } from "@auth/interfaces/request.interface";
 import { CreateUserDto } from "@users/dto/create-user.dto";
 import { JwtAuthGuard } from "@auth/guards/jwt-auth.guard";
 import { PermissionsGuard } from "@auth/guards/permissions.guard";
@@ -43,6 +44,20 @@ export class UsersController {
   @Get("check/username/:username")
   checkUsernameAvailability(@Param("username") userName: string) {
     return this.usersService.checkUsernameAvailability(userName);
+  }
+
+  // Without permissions, user can view his own profile
+  @Get("profile")
+  findMe(@Request() req: IRequest) {
+    const userId = req.user.id;
+    return this.usersService.findOne(userId);
+  }
+
+  // Without permissions, admin can update his own profile
+  @Patch("profile")
+  updateProfile(@Request() req: IRequest, @Body() user: UpdateUserDto) {
+    const userId = req.user.id;
+    return this.usersService.update(userId, user);
   }
 
   @RequiredPermissions(["admin-view", "patient-view", "professional-view"], "some")

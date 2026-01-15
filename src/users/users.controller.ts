@@ -12,60 +12,61 @@ import { UsersService } from "@users/users.service";
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @RequiredPermissions("users-create")
+  @RequiredPermissions(["patient-create", "professional-create"], "some")
   @Post()
   create(@Body() user: CreateUserDto) {
     return this.usersService.create(user);
   }
 
-  @RequiredPermissions("users-view")
+  @RequiredPermissions(["patient-view", "professional-view"], "some")
   @Get()
   findAll() {
     return this.usersService.findAll();
   }
 
-  @RequiredPermissions(["professional-view", "patient-view"], "some")
+  @RequiredPermissions(["patient-view", "professional-view"], "some")
   @Get("soft-removed/:role")
   findAllSoftRemoved(@Param("role") role: string) {
     return this.usersService.findAllSoftRemoved(role);
   }
 
-  @RequiredPermissions("users-view")
+  @RequiredPermissions(["patient-view", "professional-view"], "some")
   @Get(":id/credentials")
   findOneWithCredentials(@Param("id", ParseUUIDPipe) id: string) {
     return this.usersService.findOneWithCredentials(id);
   }
 
-  @RequiredPermissions("users-view")
+  @RequiredPermissions(["patient-view", "professional-view"], "some")
   @Get(":id")
   findOne(@Param("id", ParseUUIDPipe) id: string) {
     return this.usersService.findOne(id);
   }
 
-  @RequiredPermissions("users-view")
+  @RequiredPermissions(["patient-view", "professional-view"], "some")
   @Get(":id/soft-removed")
   findOneSoftRemoved(@Param("id", ParseUUIDPipe) id: string) {
     return this.usersService.findOneSoftRemoved(id);
   }
 
+  @RequiredPermissions(["patient-update", "professional-update"], "some")
   @Patch(":id")
   update(@Param("id", ParseUUIDPipe) id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(id, updateUserDto);
   }
 
-  @RequiredPermissions("users-delete")
+  @RequiredPermissions(["patient-delete", "professional-delete"], "some")
   @Delete("soft-remove/:id")
   softRemove(@Param("id", ParseUUIDPipe) id: string) {
     return this.usersService.softRemove(id);
   }
 
-  @RequiredPermissions("users-delete-hard")
+  @RequiredPermissions(["patient-delete-hard", "professional-delete-hard"], "some")
   @Delete(":id")
   remove(@Param("id", ParseUUIDPipe) id: string) {
     return this.usersService.remove(id);
   }
 
-  @RequiredPermissions("users-restore")
+  @RequiredPermissions(["patient-restore", "professional-restore"], "some")
   @Patch("restore/:id")
   restore(@Param("id", ParseUUIDPipe) id: string) {
     return this.usersService.restore(id);

@@ -1,5 +1,6 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, UseGuards } from "@nestjs/common";
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, UseGuards, Request } from "@nestjs/common";
 
+import type { IRequest } from "@auth/interfaces/request.interface";
 import { CreateRoleDto } from "@roles/dto/create-role.dto";
 import { JwtAuthGuard } from "@auth/guards/jwt-auth.guard";
 import { PermissionsGuard } from "@auth/guards/permissions.guard";
@@ -20,8 +21,8 @@ export class RolesController {
 
   @RequiredPermissions("roles-view")
   @Get()
-  findAll() {
-    return this.rolesService.findAll();
+  findAll(@Request() req: IRequest) {
+    return this.rolesService.findAll(req);
   }
 
   @RequiredPermissions("roles-view")

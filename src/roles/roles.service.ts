@@ -1,9 +1,11 @@
-import { DataSource, In, IsNull, Repository } from "typeorm";
+import { DataSource, In, IsNull, Not, Repository } from "typeorm";
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 
+import type { IRequest } from "@auth/interfaces/request.interface";
 import { ApiResponse } from "@common/helpers/api-response.helper";
 import { CreateRoleDto } from "@roles/dto/create-role.dto";
+import { ERole } from "@common/enums/role.enum";
 import { Permission } from "@permissions/entities/permission.entity";
 import { PermissionsCacheService } from "@permissions/permissions-cache.service";
 import { Role } from "@roles/entities/role.entity";
@@ -79,8 +81,11 @@ export class RolesService {
     }
   }
 
-  async findAll(): Promise<ApiResponse<Role[]>> {
-    const roles = await this.roleRepository.find({ order: { name: "ASC" } });
+  async findAll(req: IRequest): Promise<ApiResponse<Role[]>> {
+    const roles = await this.roleRepository.find({
+      where: req.user.role !== ERole.SUPERADMIN ? { value: Not(ERole.SUPERADMIN) } : {},
+      order: { name: "ASC" },
+    });
     if (!roles) throw new HttpException("Roles no encontrados", HttpStatus.NOT_FOUND);
 
     return ApiResponse.success<Role[]>("Roles encontrados", roles);

@@ -32,9 +32,9 @@ export class UsersService {
     });
 
     const saveUser = await this.userRepository.save(createUser);
-    if (!saveUser) throw new HttpException("Error al crear paciente", HttpStatus.BAD_REQUEST);
+    if (!saveUser) throw new HttpException("Error al crear usuario", HttpStatus.BAD_REQUEST);
 
-    return ApiResponse.created<User>("Paciente creado", saveUser);
+    return ApiResponse.created<User>("Usuario creado", saveUser);
   }
 
   async findAll(): Promise<ApiResponse<User[]>> {
@@ -53,9 +53,9 @@ export class UsersService {
         "updatedAt",
       ],
     });
-    if (!users) throw new HttpException("Pacientes no encontrados", HttpStatus.NOT_FOUND);
+    if (!users) throw new HttpException("Usuarios no encontrados", HttpStatus.NOT_FOUND);
 
-    return ApiResponse.success<User[]>("Pacientes encontrados", users);
+    return ApiResponse.success<User[]>("Usuarios encontrados", users);
   }
 
   async findAllSoftRemoved(role: string): Promise<ApiResponse<User[]>> {
@@ -82,9 +82,9 @@ export class UsersService {
       },
       withDeleted: true,
     });
-    if (!users) throw new HttpException("Pacientes no encontrados", HttpStatus.NOT_FOUND);
+    if (!users) throw new HttpException("Usuarios no encontrados", HttpStatus.NOT_FOUND);
 
-    return ApiResponse.success<User[]>("Pacientes encontrados", users);
+    return ApiResponse.success<User[]>("Usuarios encontrados", users);
   }
 
   async findOne(id: string): Promise<ApiResponse<User>> {
@@ -104,9 +104,9 @@ export class UsersService {
         "updatedAt",
       ],
     });
-    if (!user) throw new HttpException("Paciente no encontrado", HttpStatus.NOT_FOUND);
+    if (!user) throw new HttpException("Usuario no encontrado", HttpStatus.NOT_FOUND);
 
-    return ApiResponse.success<User>("Paciente encontrado", user);
+    return ApiResponse.success<User>("Usuario encontrado", user);
   }
 
   async findOneSoftRemoved(id: string): Promise<ApiResponse<User>> {
@@ -128,18 +128,18 @@ export class UsersService {
       ],
       withDeleted: true,
     });
-    if (!user) throw new HttpException("Paciente no encontrado", HttpStatus.NOT_FOUND);
+    if (!user) throw new HttpException("Usuario no encontrado", HttpStatus.NOT_FOUND);
 
-    return ApiResponse.success<User>("Paciente encontrado", user);
+    return ApiResponse.success<User>("Usuario encontrado", user);
   }
 
   async findOneWithCredentials(id: string): Promise<ApiResponse<User>> {
     const user = await this.userRepository.findOne({
       where: { id },
     });
-    if (!user) throw new HttpException("Paciente no encontrado", HttpStatus.NOT_FOUND);
+    if (!user) throw new HttpException("Usuario no encontrado", HttpStatus.NOT_FOUND);
 
-    return ApiResponse.success<User>("Paciente encontrado", user);
+    return ApiResponse.success<User>("Usuario encontrado", user);
   }
 
   async findOneWithToken(id: string): Promise<ApiResponse<User>> {
@@ -160,40 +160,40 @@ export class UsersService {
         "refreshToken",
       ],
     });
-    if (!user) throw new HttpException("Paciente no encontrado", HttpStatus.NOT_FOUND);
+    if (!user) throw new HttpException("Usuario no encontrado", HttpStatus.NOT_FOUND);
 
-    return ApiResponse.success<User>("Paciente encontrado", user);
+    return ApiResponse.success<User>("Usuario encontrado", user);
   }
 
   // TODO: Implement validations as AdminService
   async update(id: string, updateUserDto: UpdateUserDto): Promise<ApiResponse<User>> {
+    await this.findOneById(id);
+
     const result = await this.userRepository.update(id, updateUserDto);
-    if (!result) throw new HttpException("Error al actualizar paciente", HttpStatus.BAD_REQUEST);
+    if (!result) throw new HttpException("Error al actualizar usuario", HttpStatus.BAD_REQUEST);
 
     const updatedUser = await this.userRepository.findOne({ where: { id } });
-    if (!updatedUser) throw new HttpException("Paciente no encontrado", HttpStatus.NOT_FOUND);
+    if (!updatedUser) throw new HttpException("Usuario no encontrado", HttpStatus.NOT_FOUND);
 
-    return ApiResponse.success<User>("Paciente actualizado", updatedUser);
+    return ApiResponse.success<User>("Usuario actualizado", updatedUser);
   }
 
   async softRemove(id: string): Promise<ApiResponse<User>> {
     const userToRemove = await this.findOneById(id);
-    const role = userToRemove.role.name;
 
     const result = await this.userRepository.softRemove(userToRemove);
-    if (!result) throw new HttpException(`Error al eliminar ${role.toLowerCase()}`, HttpStatus.BAD_REQUEST);
+    if (!result) throw new HttpException("Error al eliminar usuario", HttpStatus.BAD_REQUEST);
 
-    return ApiResponse.removed<User>(`${role} eliminado`, result);
+    return ApiResponse.removed<User>("Usuario eliminado", result);
   }
 
   async remove(id: string): Promise<ApiResponse<User>> {
     const userToRemove = await this.findOneById(id);
-    const role = userToRemove.role.name;
 
     const result = await this.userRepository.remove(userToRemove);
-    if (!result) throw new HttpException(`Error al eliminar ${role.toLowerCase()}`, HttpStatus.BAD_REQUEST);
+    if (!result) throw new HttpException("Error al eliminar usuario", HttpStatus.BAD_REQUEST);
 
-    return ApiResponse.removed<User>(`${role} eliminado`, result);
+    return ApiResponse.removed<User>("Usuario eliminado", result);
   }
 
   async restore(id: string): Promise<ApiResponse<User>> {
@@ -201,23 +201,24 @@ export class UsersService {
       where: { id },
       withDeleted: true,
     });
-
-    if (!userToRestore) throw new HttpException("Paciente no encontrado", HttpStatus.NOT_FOUND);
+    if (!userToRestore) throw new HttpException("Usuario no encontrado", HttpStatus.NOT_FOUND);
 
     const result = await this.userRepository.restore(userToRestore.id);
-    if (!result) throw new HttpException("Error al restaurar paciente", HttpStatus.BAD_REQUEST);
+    if (!result) throw new HttpException("Error al restaurar usuario", HttpStatus.BAD_REQUEST);
 
     const restoredUser = await this.findOneById(id);
 
-    return ApiResponse.success<User>(`${restoredUser.role.name} restaurado`, restoredUser);
+    return ApiResponse.success<User>("Usuario restaurado", restoredUser);
   }
 
+  // TODO: Implement validations
   public async findOneByEmail(email: string) {
     const user = await this.userRepository.findOne({ where: { email } });
 
     return user;
   }
 
+  // TODO: Implement validations
   public async getUser(id: string): Promise<User | null> {
     const user = await this.userRepository.findOne({
       where: { id },
@@ -244,7 +245,7 @@ export class UsersService {
 
   public async findOneById(id: string): Promise<User> {
     const user = await this.userRepository.findOne({ where: { id } });
-    if (!user) throw new HttpException("Paciente no encontrado", HttpStatus.NOT_FOUND);
+    if (!user) throw new HttpException("Usuario no encontrado", HttpStatus.NOT_FOUND);
 
     return user;
   }

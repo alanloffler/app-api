@@ -89,12 +89,11 @@ export class PermissionsService {
       admin: "Administradores",
       calendar: "Agenda",
       events: "Turnos",
-      patients: "Pacientes",
+      patient: "Pacientes",
       permissions: "Permisos",
-      professionals: "Profesionales",
+      professional: "Profesionales",
       roles: "Roles",
       settings: "Configuraciones",
-      users: "Pacientes",
     };
 
     return categoryNames[category] || category.charAt(0).toUpperCase() + category.slice(1);

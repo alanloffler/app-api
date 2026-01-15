@@ -34,25 +34,32 @@ export class UsersService {
     const saveUser = await this.userRepository.save(createUser);
     if (!saveUser) throw new HttpException("Error al crear usuario", HttpStatus.BAD_REQUEST);
 
-    return ApiResponse.created<User>("Usuario creado", saveUser);
+    const savedUser = await this.findOneById(saveUser.id);
+
+    return ApiResponse.created<User>("Usuario creado", savedUser);
   }
 
-  async findAll(): Promise<ApiResponse<User[]>> {
-    const users = await this.userRepository.find({
-      select: [
-        "id",
-        "ic",
-        "userName",
-        "firstName",
-        "lastName",
-        "email",
-        "phoneNumber",
-        "role",
-        "roleId",
-        "createdAt",
-        "updatedAt",
-      ],
-    });
+  async findAll(role: string): Promise<ApiResponse<User[]>> {
+    const users = await this.userRepository
+      .createQueryBuilder("user")
+      .leftJoin("user.role", "role")
+      .select([
+        "user.id",
+        "user.ic",
+        "user.userName",
+        "user.firstName",
+        "user.lastName",
+        "user.email",
+        "user.phoneNumber",
+        "user.roleId",
+        "user.createdAt",
+        "user.updatedAt",
+        "role.id",
+        "role.name",
+        "role.value",
+      ])
+      .where("role.value = :role", { role })
+      .getMany();
     if (!users) throw new HttpException("Usuarios no encontrados", HttpStatus.NOT_FOUND);
 
     return ApiResponse.success<User[]>("Usuarios encontrados", users);

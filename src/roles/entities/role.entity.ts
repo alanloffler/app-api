@@ -10,6 +10,7 @@ import {
 
 import { Admin } from "@admin/entities/admin.entity";
 import { RolePermission } from "@roles/entities/role-permission.entity";
+import { User } from "@users/entities/user.entity";
 
 @Entity()
 export class Role {
@@ -27,6 +28,9 @@ export class Role {
 
   @OneToMany(() => Admin, (admin) => admin.role)
   admins: Admin[];
+
+  @OneToMany(() => User, (user) => user.role)
+  users: User[];
 
   @OneToMany(() => RolePermission, (rp) => rp.role, { cascade: true, eager: true })
   rolePermissions: RolePermission[];

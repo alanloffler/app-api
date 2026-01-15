@@ -178,20 +178,22 @@ export class UsersService {
 
   async softRemove(id: string): Promise<ApiResponse<User>> {
     const userToRemove = await this.findOneById(id);
+    const role = userToRemove.role.name;
 
     const result = await this.userRepository.softRemove(userToRemove);
-    if (!result) throw new HttpException("Error al eliminar paciente", HttpStatus.BAD_REQUEST);
+    if (!result) throw new HttpException(`Error al eliminar ${role.toLowerCase()}`, HttpStatus.BAD_REQUEST);
 
-    return ApiResponse.removed<User>("Paciente eliminado", result);
+    return ApiResponse.removed<User>(`${role} eliminado`, result);
   }
 
   async remove(id: string): Promise<ApiResponse<User>> {
     const userToRemove = await this.findOneById(id);
+    const role = userToRemove.role.name;
 
     const result = await this.userRepository.remove(userToRemove);
-    if (!result) throw new HttpException("Error al eliminar paciente", HttpStatus.BAD_REQUEST);
+    if (!result) throw new HttpException(`Error al eliminar ${role.toLowerCase()}`, HttpStatus.BAD_REQUEST);
 
-    return ApiResponse.removed<User>("Paciente eliminado", result);
+    return ApiResponse.removed<User>(`${role} eliminado`, result);
   }
 
   async restore(id: string): Promise<ApiResponse<User>> {
@@ -207,7 +209,7 @@ export class UsersService {
 
     const restoredUser = await this.findOneById(id);
 
-    return ApiResponse.success<User>("Paciente restaurado", restoredUser);
+    return ApiResponse.success<User>(`${restoredUser.role.name} restaurado`, restoredUser);
   }
 
   public async findOneByEmail(email: string) {

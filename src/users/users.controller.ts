@@ -19,9 +19,9 @@ export class UsersController {
   }
 
   @RequiredPermissions(["patient-view", "professional-view"], "some")
-  @Get()
-  findAll() {
-    return this.usersService.findAll();
+  @Get(":role")
+  findAll(@Param("role") role: string) {
+    return this.usersService.findAll(role);
   }
 
   @RequiredPermissions(["patient-view", "professional-view"], "some")

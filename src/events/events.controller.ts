@@ -1,5 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, ParseUUIDPipe } from "@nestjs/common";
 
+import { BusinessId } from "@common/decorators/business-id.decorator";
 import { CreateEventDto } from "@events/dto/create-event.dto";
 import { EventsService } from "@events/events.service";
 import { JwtAuthGuard } from "@auth/guards/jwt-auth.guard";
@@ -14,8 +15,8 @@ export class EventsController {
 
   @RequiredPermissions("events-create")
   @Post()
-  create(@Body() createEventDto: CreateEventDto) {
-    return this.eventsService.create(createEventDto);
+  create(@Body() createEventDto: CreateEventDto, @BusinessId() businessId: string) {
+    return this.eventsService.create(createEventDto, businessId);
   }
 
   @RequiredPermissions("events-view")

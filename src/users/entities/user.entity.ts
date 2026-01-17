@@ -9,6 +9,7 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 
+import { Business } from "@business/entities/business.entity";
 import { Role } from "@roles/entities/role.entity";
 
 @Entity()
@@ -43,6 +44,13 @@ export class User {
   @ManyToOne(() => Role, { eager: true })
   @JoinColumn({ name: "role_id" })
   role: Role;
+
+  @Column({ type: "uuid", name: "business_id", nullable: false })
+  businessId: string;
+
+  @ManyToOne(() => Business, (business) => business.users)
+  @JoinColumn({ name: "business_id" })
+  business: Business;
 
   @Column({ type: "text", nullable: true })
   refreshToken: string;

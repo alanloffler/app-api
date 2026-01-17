@@ -133,7 +133,7 @@ export class AuthService {
       const admin = await this.adminService.findOneWithToken(payload.id);
       storedRefreshToken = admin.data?.refreshToken;
     } else if (type === EAuthType.USER) {
-      const user = await this.usersService.findOneWithToken(payload.id);
+      const user = await this.usersService.findOneWithToken(payload.id, payload.businessId);
       storedRefreshToken = user.data?.refreshToken;
     } else {
       throw new HttpException("Tipo de usuario inválido", HttpStatus.BAD_REQUEST);
@@ -174,7 +174,7 @@ export class AuthService {
     }
 
     if (type === EAuthType.USER) {
-      const user = await this.usersService.getUser(payload.id);
+      const user = await this.usersService.getUser(payload.id, payload.businessId);
       if (!user) throw new HttpException("Usuario no encontrado", HttpStatus.NOT_FOUND);
 
       return ApiResponse.success("Usuario encontrado", user);

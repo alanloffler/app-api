@@ -21,10 +21,11 @@ export class AuthService {
     private readonly usersService: UsersService,
   ) {}
 
-  async signIn(req: IRequest, res: Response): Promise<ApiResponse<IPayload>> {
+  async signIn(req: IRequest, res: Response): Promise<ApiResponse<null>> {
     const authType = req.body.type;
 
     const payload = {
+      businessId: req.user.businessId,
       id: req.user.id,
       email: req.user.email,
       role: req.user.role,
@@ -38,22 +39,23 @@ export class AuthService {
 
     this.setTokenCookie(res, tokens);
 
-    return ApiResponse.success("Usuario logueado", payload);
+    return ApiResponse.success("Usuario logueado");
   }
 
-  async validateUser(email: string): Promise<IPayload> {
-    const user = await this.adminService.findOneByEmail(email);
-
-    if (!user) throw new HttpException("Usuario incorrecto", HttpStatus.NOT_FOUND);
-    if (!user.role) throw new HttpException("El usuario posee un rol inactivo", HttpStatus.NOT_FOUND);
-
-    return {
-      id: user.id,
-      email: user.email,
-      role: user.role.value,
-      roleId: user.role.id,
-    };
-  }
+  // async validateUser(email: string): Promise<IPayload> {
+  // const user = await this.adminService.findOneByEmail(email);
+  //
+  // if (!user) throw new HttpException("Usuario incorrecto", HttpStatus.NOT_FOUND);
+  // if (!user.role) throw new HttpException("El usuario posee un rol inactivo", HttpStatus.NOT_FOUND);
+  //
+  // return {
+  //   businessId: user.businessId,
+  //   id: user.id,
+  //   email: user.email,
+  //   role: user.role.value,
+  //   roleId: user.role.id,
+  // };
+  // }
 
   async validatePassword(email: string, password: string): Promise<boolean> {
     const user = await this.adminService.findOneByEmail(email);

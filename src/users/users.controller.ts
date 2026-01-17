@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Request, Delete, UseGuards, ParseUUIDPipe } from "@nestjs/common";
 
 import type { IRequest } from "@auth/interfaces/request.interface";
+import { BusinessId } from "@common/decorators/business-id.decorator";
 import { CreateUserDto } from "@users/dto/create-user.dto";
 import { JwtAuthGuard } from "@auth/guards/jwt-auth.guard";
 import { PermissionsGuard } from "@auth/guards/permissions.guard";
@@ -15,8 +16,8 @@ export class UsersController {
 
   @RequiredPermissions(["admin-create", "patient-create", "professional-create"], "some")
   @Post()
-  create(@Body() user: CreateUserDto) {
-    return this.usersService.create(user);
+  create(@Body() user: CreateUserDto, @BusinessId() businessId: string) {
+    return this.usersService.create(user, businessId);
   }
 
   @RequiredPermissions(
@@ -24,8 +25,8 @@ export class UsersController {
     "some",
   )
   @Get("check/email/:email")
-  checkEmailAvailability(@Param("email") email: string) {
-    return this.usersService.checkEmailAvailability(email);
+  checkEmailAvailability(@Param("email") email: string, @BusinessId() businessId: string) {
+    return this.usersService.checkEmailAvailability(email, businessId);
   }
 
   @RequiredPermissions(
@@ -33,8 +34,8 @@ export class UsersController {
     "some",
   )
   @Get("check/ic/:ic")
-  checkIcAvailability(@Param("ic") id: string) {
-    return this.usersService.checkIcAvailability(id);
+  checkIcAvailability(@Param("ic") id: string, @BusinessId() businessId: string) {
+    return this.usersService.checkIcAvailability(id, businessId);
   }
 
   @RequiredPermissions(
@@ -42,75 +43,79 @@ export class UsersController {
     "some",
   )
   @Get("check/username/:username")
-  checkUsernameAvailability(@Param("username") userName: string) {
-    return this.usersService.checkUsernameAvailability(userName);
+  checkUsernameAvailability(@Param("username") userName: string, @BusinessId() businessId: string) {
+    return this.usersService.checkUsernameAvailability(userName, businessId);
   }
 
   // Without permissions, user can view his own profile
   @Get("profile")
-  findMe(@Request() req: IRequest) {
+  findMe(@Request() req: IRequest, @BusinessId() businessId: string) {
     const userId = req.user.id;
-    return this.usersService.findOne(userId);
+    return this.usersService.findOne(userId, businessId);
   }
 
   // Without permissions, admin can update his own profile
   @Patch("profile")
-  updateProfile(@Request() req: IRequest, @Body() user: UpdateUserDto) {
+  updateProfile(@Request() req: IRequest, @Body() user: UpdateUserDto, @BusinessId() businessId: string) {
     const userId = req.user.id;
-    return this.usersService.update(userId, user);
+    return this.usersService.update(userId, user, businessId);
   }
 
   @RequiredPermissions(["admin-view", "patient-view", "professional-view"], "some")
   @Get("role/:role")
-  findAll(@Param("role") role: string) {
-    return this.usersService.findAll(role);
+  findAll(@Param("role") role: string, @BusinessId() businessId: string) {
+    return this.usersService.findAll(role, businessId);
   }
 
   @RequiredPermissions(["admin-view", "patient-view", "professional-view"], "some")
   @Get("all-soft-remove/:role")
-  findAllSoftRemoved(@Param("role") role: string) {
-    return this.usersService.findAllSoftRemoved(role);
+  findAllSoftRemoved(@Param("role") role: string, @BusinessId() businessId: string) {
+    return this.usersService.findAllSoftRemoved(role, businessId);
   }
 
   @RequiredPermissions(["admin-view", "patient-view", "professional-view"], "some")
   @Get("soft-remove/:id")
-  findOneSoftRemoved(@Param("id", ParseUUIDPipe) id: string) {
-    return this.usersService.findOneSoftRemoved(id);
+  findOneSoftRemoved(@Param("id", ParseUUIDPipe) id: string, @BusinessId() businessId: string) {
+    return this.usersService.findOneSoftRemoved(id, businessId);
   }
 
   @RequiredPermissions(["admin-view", "patient-view", "professional-view"], "some")
   @Get("credential/:id")
-  findOneWithCredentials(@Param("id", ParseUUIDPipe) id: string) {
-    return this.usersService.findOneWithCredentials(id);
+  findOneWithCredentials(@Param("id", ParseUUIDPipe) id: string, @BusinessId() businessId: string) {
+    return this.usersService.findOneWithCredentials(id, businessId);
   }
 
   @RequiredPermissions(["admin-view", "patient-view", "professional-view"], "some")
   @Get(":id")
-  findOne(@Param("id", ParseUUIDPipe) id: string) {
-    return this.usersService.findOne(id);
+  findOne(@Param("id", ParseUUIDPipe) id: string, @BusinessId() businessId: string) {
+    return this.usersService.findOne(id, businessId);
   }
 
   @RequiredPermissions(["admin-update", "patient-update", "professional-update"], "some")
   @Patch(":id")
-  update(@Param("id", ParseUUIDPipe) id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(id, updateUserDto);
+  update(
+    @Param("id", ParseUUIDPipe) id: string,
+    @Body() updateUserDto: UpdateUserDto,
+    @BusinessId() businessId: string,
+  ) {
+    return this.usersService.update(id, updateUserDto, businessId);
   }
 
   @RequiredPermissions(["admin-restore", "patient-restore", "professional-restore"], "some")
   @Patch("restore/:id")
-  restore(@Param("id", ParseUUIDPipe) id: string) {
-    return this.usersService.restore(id);
+  restore(@Param("id", ParseUUIDPipe) id: string, @BusinessId() businessId: string) {
+    return this.usersService.restore(id, businessId);
   }
 
   @RequiredPermissions(["admin-delete", "patient-delete", "professional-delete"], "some")
   @Delete("soft-remove/:id")
-  softRemove(@Param("id", ParseUUIDPipe) id: string) {
-    return this.usersService.softRemove(id);
+  softRemove(@Param("id", ParseUUIDPipe) id: string, @BusinessId() businessId: string) {
+    return this.usersService.softRemove(id, businessId);
   }
 
   @RequiredPermissions(["admin-delete-hard", "patient-delete-hard", "professional-delete-hard"], "some")
   @Delete(":id")
-  remove(@Param("id", ParseUUIDPipe) id: string) {
-    return this.usersService.remove(id);
+  remove(@Param("id", ParseUUIDPipe) id: string, @BusinessId() businessId: string) {
+    return this.usersService.remove(id, businessId);
   }
 }

@@ -23,7 +23,7 @@ export interface GroupedPermission {
 export class PermissionsService {
   constructor(@InjectRepository(Permission) private readonly permissionRepository: Repository<Permission>) {}
 
-  async create(createPermissionDto: CreatePermissionDto) {
+  async create(createPermissionDto: CreatePermissionDto): Promise<ApiResponse<Permission>> {
     const checkExists = await this.permissionRepository.findOne({
       where: { actionKey: createPermissionDto.actionKey },
     });

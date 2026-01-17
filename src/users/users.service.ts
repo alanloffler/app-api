@@ -16,11 +16,11 @@ export class UsersService {
     private readonly configService: ConfigService,
   ) {}
 
-  async create(createUserDto: CreateUserDto): Promise<ApiResponse<User>> {
-    const checkIc = await this.checkIcAvailability(createUserDto.ic);
+  async create(createUserDto: CreateUserDto, businessId: string): Promise<ApiResponse<User>> {
+    const checkIc = await this.checkIcAvailability(createUserDto.ic, businessId);
     if (checkIc.data === false) throw new HttpException("DNI ya registrado", HttpStatus.BAD_REQUEST);
 
-    const checkEmail = await this.checkEmailAvailability(createUserDto.email);
+    const checkEmail = await this.checkEmailAvailability(createUserDto.email, businessId);
     if (checkEmail.data === false) throw new HttpException("Email ya registrado", HttpStatus.BAD_REQUEST);
 
     const saltRounds = parseInt(this.configService.get("BCRYPT_SALT_ROUNDS") || "10");
@@ -34,12 +34,12 @@ export class UsersService {
     const saveUser = await this.userRepository.save(createUser);
     if (!saveUser) throw new HttpException("Error al crear usuario", HttpStatus.BAD_REQUEST);
 
-    const savedUser = await this.findOneById(saveUser.id);
+    const savedUser = await this.findOneById(saveUser.id, businessId);
 
     return ApiResponse.created<User>("Usuario creado", savedUser);
   }
 
-  async findAll(role: string): Promise<ApiResponse<User[]>> {
+  async findAll(role: string, businessId: string): Promise<ApiResponse<User[]>> {
     const users = await this.userRepository
       .createQueryBuilder("user")
       .leftJoin("user.role", "role")
@@ -58,14 +58,15 @@ export class UsersService {
         "role.name",
         "role.value",
       ])
-      .where("role.value = :role", { role })
+      .where("user.businessId = :businessId", { businessId })
+      .andWhere("role.value = :role", { role })
       .getMany();
     if (!users) throw new HttpException("Usuarios no encontrados", HttpStatus.NOT_FOUND);
 
     return ApiResponse.success<User[]>("Usuarios encontrados", users);
   }
 
-  async findAllSoftRemoved(role: string): Promise<ApiResponse<User[]>> {
+  async findAllSoftRemoved(role: string, businessId: string): Promise<ApiResponse<User[]>> {
     const users = await this.userRepository.find({
       select: [
         "id",
@@ -83,6 +84,7 @@ export class UsersService {
       ],
       relations: ["role"],
       where: {
+        businessId,
         role: {
           value: role,
         },
@@ -94,9 +96,9 @@ export class UsersService {
     return ApiResponse.success<User[]>("Usuarios encontrados", users);
   }
 
-  async findOne(id: string): Promise<ApiResponse<User>> {
+  async findOne(id: string, businessId: string): Promise<ApiResponse<User>> {
     const user = await this.userRepository.findOne({
-      where: { id },
+      where: { businessId, id },
       select: [
         "id",
         "ic",
@@ -116,9 +118,9 @@ export class UsersService {
     return ApiResponse.success<User>("Usuario encontrado", user);
   }
 
-  async findOneSoftRemoved(id: string): Promise<ApiResponse<User>> {
+  async findOneSoftRemoved(id: string, businessId: string): Promise<ApiResponse<User>> {
     const user = await this.userRepository.findOne({
-      where: { id },
+      where: { businessId, id },
       select: [
         "id",
         "ic",
@@ -140,18 +142,18 @@ export class UsersService {
     return ApiResponse.success<User>("Usuario encontrado", user);
   }
 
-  async findOneWithCredentials(id: string): Promise<ApiResponse<User>> {
+  async findOneWithCredentials(id: string, businessId: string): Promise<ApiResponse<User>> {
     const user = await this.userRepository.findOne({
-      where: { id },
+      where: { businessId, id },
     });
     if (!user) throw new HttpException("Usuario no encontrado", HttpStatus.NOT_FOUND);
 
     return ApiResponse.success<User>("Usuario encontrado", user);
   }
 
-  async findOneWithToken(id: string): Promise<ApiResponse<User>> {
+  async findOneWithToken(id: string, businessId: string): Promise<ApiResponse<User>> {
     const user = await this.userRepository.findOne({
-      where: { id },
+      where: { businessId, id },
       select: [
         "id",
         "ic",
@@ -173,8 +175,8 @@ export class UsersService {
   }
 
   // TODO: Implement validations as AdminService
-  async update(id: string, updateUserDto: UpdateUserDto): Promise<ApiResponse<User>> {
-    await this.findOneById(id);
+  async update(id: string, updateUserDto: UpdateUserDto, businessId: string): Promise<ApiResponse<User>> {
+    await this.findOneById(id, businessId);
 
     const result = await this.userRepository.update(id, updateUserDto);
     if (!result) throw new HttpException("Error al actualizar usuario", HttpStatus.BAD_REQUEST);
@@ -185,8 +187,8 @@ export class UsersService {
     return ApiResponse.success<User>("Usuario actualizado", updatedUser);
   }
 
-  async softRemove(id: string): Promise<ApiResponse<User>> {
-    const userToRemove = await this.findOneById(id);
+  async softRemove(id: string, businessId: string): Promise<ApiResponse<User>> {
+    const userToRemove = await this.findOneById(id, businessId);
 
     const result = await this.userRepository.softRemove(userToRemove);
     if (!result) throw new HttpException("Error al eliminar usuario", HttpStatus.BAD_REQUEST);
@@ -194,8 +196,8 @@ export class UsersService {
     return ApiResponse.removed<User>("Usuario eliminado", result);
   }
 
-  async remove(id: string): Promise<ApiResponse<User>> {
-    const userToRemove = await this.findOneById(id);
+  async remove(id: string, businessId: string): Promise<ApiResponse<User>> {
+    const userToRemove = await this.findOneById(id, businessId);
 
     const result = await this.userRepository.remove(userToRemove);
     if (!result) throw new HttpException("Error al eliminar usuario", HttpStatus.BAD_REQUEST);
@@ -203,9 +205,9 @@ export class UsersService {
     return ApiResponse.removed<User>("Usuario eliminado", result);
   }
 
-  async restore(id: string): Promise<ApiResponse<User>> {
+  async restore(id: string, businessId: string): Promise<ApiResponse<User>> {
     const userToRestore = await this.userRepository.findOne({
-      where: { id },
+      where: { businessId, id },
       withDeleted: true,
     });
     if (!userToRestore) throw new HttpException("Usuario no encontrado", HttpStatus.NOT_FOUND);
@@ -213,22 +215,22 @@ export class UsersService {
     const result = await this.userRepository.restore(userToRestore.id);
     if (!result) throw new HttpException("Error al restaurar usuario", HttpStatus.BAD_REQUEST);
 
-    const restoredUser = await this.findOneById(id);
+    const restoredUser = await this.findOneById(id, businessId);
 
     return ApiResponse.success<User>("Usuario restaurado", restoredUser);
   }
 
   // TODO: Implement validations
-  public async findOneByEmail(email: string) {
-    const user = await this.userRepository.findOne({ where: { email } });
+  public async findOneByEmail(email: string, businessId: string): Promise<User | null> {
+    const user = await this.userRepository.findOne({ where: { businessId, email } });
 
     return user;
   }
 
   // TODO: Implement validations
-  public async getUser(id: string): Promise<User | null> {
+  public async getUser(id: string, businessId: string): Promise<User | null> {
     const user = await this.userRepository.findOne({
-      where: { id },
+      where: { businessId, id },
       select: ["id", "ic", "email", "userName", "firstName", "lastName", "role", "createdAt"],
       relations: ["role"],
     });
@@ -236,25 +238,29 @@ export class UsersService {
     return user;
   }
 
-  public async checkEmailAvailability(email: string): Promise<ApiResponse<boolean>> {
-    const user = await this.userRepository.findOne({ where: { email } });
+  public async checkEmailAvailability(email: string, businessId: string): Promise<ApiResponse<boolean>> {
+    const user = await this.userRepository.findOne({ where: { businessId, email } });
     return ApiResponse.success<boolean>("Disponibilidad de email", user ? false : true);
   }
 
-  public async checkIcAvailability(ic: string): Promise<ApiResponse<boolean>> {
-    const user = await this.userRepository.findOne({ where: { ic } });
+  public async checkIcAvailability(ic: string, businessId: string): Promise<ApiResponse<boolean>> {
+    const user = await this.userRepository.findOne({ where: { businessId, ic } });
     return ApiResponse.success<boolean>("Disponibilidad de DNI", user ? false : true);
   }
 
-  public async checkUsernameAvailability(userName: string): Promise<ApiResponse<boolean>> {
-    const username = await this.userRepository.findOne({ where: { userName } });
+  public async checkUsernameAvailability(userName: string, businessId: string): Promise<ApiResponse<boolean>> {
+    const username = await this.userRepository.findOne({ where: { businessId, userName } });
     return ApiResponse.success<boolean>("Disponibilidad de nombre de usuario", username ? false : true);
   }
 
-  public async findOneById(id: string): Promise<User> {
-    const user = await this.userRepository.findOne({ where: { id } });
+  public async findOneById(id: string, businessId: string): Promise<User> {
+    const user = await this.userRepository.findOne({ where: { businessId, id } });
     if (!user) throw new HttpException("Usuario no encontrado", HttpStatus.NOT_FOUND);
 
     return user;
+  }
+
+  public async clearRefreshToken(id: string): Promise<void> {
+    await this.userRepository.update(id, { refreshToken: undefined });
   }
 }

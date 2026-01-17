@@ -1,12 +1,23 @@
-import { Injectable } from "@nestjs/common";
+import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
 
+import { ApiResponse } from "@common/helpers/api-response.helper";
+import { Business } from "@business/entities/business.entity";
 import { CreateBusinessDto } from "@business/dto/create-business.dto";
 import { UpdateBusinessDto } from "@business/dto/update-business.dto";
 
 @Injectable()
 export class BusinessService {
-  create(createBusinessDto: CreateBusinessDto) {
-    return "This action adds a new business";
+  constructor(@InjectRepository(Business) private readonly businessRepository: Repository<Business>) {}
+
+  async create(createBusinessDto: CreateBusinessDto): Promise<ApiResponse<Business>> {
+    const business = this.businessRepository.create(createBusinessDto);
+    const saveBusiness = await this.businessRepository.save(business);
+    if (!saveBusiness) throw new HttpException("Error al crear negocio", HttpStatus.BAD_REQUEST);
+    console.log(saveBusiness);
+
+    return ApiResponse.created<Business>("Negocio creado", saveBusiness);
   }
 
   findAll() {

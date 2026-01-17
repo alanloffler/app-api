@@ -6,6 +6,7 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Unique,
   UpdateDateColumn,
 } from "typeorm";
 
@@ -13,11 +14,14 @@ import { Business } from "@business/entities/business.entity";
 import { Role } from "@roles/entities/role.entity";
 
 @Entity()
+@Unique(["businessId", "email"])
+@Unique(["businessId", "ic"])
+@Unique(["businessId", "userName"])
 export class User {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  @Column({ type: "varchar", length: 8, nullable: false, unique: true })
+  @Column({ type: "varchar", length: 8, nullable: false })
   ic: string;
 
   @Column({ type: "varchar", length: 100, name: "user_name", nullable: false })
@@ -29,7 +33,7 @@ export class User {
   @Column({ type: "varchar", length: 100, name: "last_name", nullable: false })
   lastName: string;
 
-  @Column({ type: "varchar", length: 100, nullable: false, unique: true })
+  @Column({ type: "varchar", length: 100, nullable: false })
   email: string;
 
   @Column({ type: "varchar", length: 100, nullable: false })

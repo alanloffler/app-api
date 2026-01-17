@@ -35,7 +35,7 @@ export class AuthService {
 
     const tokens = await this.getTokens(payload, true);
 
-    await this.updateRefreshToken(payload.id, tokens.refreshToken, authType);
+    await this.updateRefreshToken(payload.id, tokens.refreshToken!, authType, payload.businessId);
 
     this.setTokenCookie(res, tokens);
 
@@ -94,7 +94,7 @@ export class AuthService {
     }
   }
 
-  async updateRefreshToken(id: string, refreshToken?: string, type?: string): Promise<void> {
+  async updateRefreshToken(id: string, refreshToken: string, type: string, businessId: string): Promise<void> {
     if (type === EAuthType.ADMIN) {
       const updateToken = await this.adminService.update(id, { refreshToken });
       if (!updateToken) throw new HttpException("Error al actualizar token", HttpStatus.BAD_REQUEST);
@@ -102,8 +102,11 @@ export class AuthService {
     }
 
     if (type === EAuthType.USER) {
-      const updateToken = await this.usersService.update(id, { refreshToken });
+      if (!businessId) throw new HttpException("BusinessId requerido", HttpStatus.BAD_REQUEST);
+
+      const updateToken = await this.usersService.update(id, { refreshToken }, businessId);
       if (!updateToken) throw new HttpException("Error al actualizar token", HttpStatus.BAD_REQUEST);
+
       return;
     }
 
@@ -111,7 +114,12 @@ export class AuthService {
   }
 
   async signOut(payload: IPayload, res: Response): Promise<ApiResponse<null>> {
-    await this.updateRefreshToken(payload.id, "", payload.type);
+    if (payload.type === EAuthType.ADMIN) {
+      await this.adminService.update(payload.id, { refreshToken: undefined });
+    } else if (payload.type === EAuthType.USER) {
+      await this.usersService.clearRefreshToken(payload.id);
+    }
+
     this.clearTokenCookie(res);
 
     return ApiResponse.success<null>("Deslogueo exitoso", null);
@@ -141,7 +149,7 @@ export class AuthService {
     const tokens = await this.getTokens(payload, shouldRotate);
 
     if (shouldRotate) {
-      await this.updateRefreshToken(payload.id, tokens.refreshToken, type);
+      await this.updateRefreshToken(payload.id, tokens.refreshToken!, type, payload.businessId);
     }
 
     this.setTokenCookie(res, {

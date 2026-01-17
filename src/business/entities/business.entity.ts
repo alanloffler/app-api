@@ -1,4 +1,6 @@
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+
+import { User } from "@users/entities/user.entity";
 
 @Entity()
 export class Business {
@@ -43,6 +45,9 @@ export class Business {
 
   @Column({ type: "varchar", length: 100, nullable: true })
   website?: string;
+
+  @OneToMany(() => User, (user) => user.business)
+  users: User[];
 
   @CreateDateColumn({ name: "created_at" })
   createdAt: Date;

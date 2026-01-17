@@ -38,7 +38,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     let user: ApiResponse<Admin | User> | null = null;
 
     if (payload.type === EAuthType.USER) {
-      user = await this.usersService.findOne(payload.id);
+      user = await this.usersService.findOne(payload.id, payload.businessId);
       if (!user) throw new HttpException("Usuario no encontrado", HttpStatus.UNAUTHORIZED);
     } else if (payload.type === EAuthType.ADMIN) {
       user = await this.adminService.findOne(payload.id);

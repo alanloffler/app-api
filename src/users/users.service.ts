@@ -221,8 +221,9 @@ export class UsersService {
   }
 
   // TODO: Implement validations
-  public async findOneByEmail(email: string, businessId: string): Promise<User | null> {
-    const user = await this.userRepository.findOne({ where: { businessId, email } });
+  // TODO: Implement businessId to search by tenant! First do slug handler
+  public async findOneByEmail(email: string): Promise<User | null> {
+    const user = await this.userRepository.findOne({ where: { email } });
 
     return user;
   }

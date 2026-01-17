@@ -16,7 +16,7 @@ export class EventsService {
     private readonly userService: UsersService,
   ) {}
 
-  async create(createEventDto: CreateEventDto) {
+  async create(createEventDto: CreateEventDto, businessId: string) {
     const slotAvailable = await this.checkSlotAvailable(createEventDto);
 
     if (!slotAvailable) {
@@ -24,7 +24,7 @@ export class EventsService {
     }
 
     // Already handle http exception
-    await this.userService.findOneById(createEventDto.userId);
+    await this.userService.findOneById(createEventDto.userId, businessId);
 
     // TODO: 3. Check if professional exists (must create module!)
 

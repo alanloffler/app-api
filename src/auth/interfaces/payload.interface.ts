@@ -1,4 +1,5 @@
 export interface IPayload {
+  businessId: string;
   email: string;
   exp?: number;
   iat?: number;

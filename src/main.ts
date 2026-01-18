@@ -1,5 +1,6 @@
 import cookieParser from "cookie-parser";
 import { ClassSerializerInterceptor, ValidationPipe } from "@nestjs/common";
+import { NestExpressApplication } from "@nestjs/platform-express";
 import { NestFactory, Reflector } from "@nestjs/core";
 import { readFileSync } from "fs";
 
@@ -20,8 +21,7 @@ async function bootstrap() {
 
   const PORT: number = parseInt(process.env.PORT ?? "3000");
 
-  const app = await NestFactory.create(AppModule, { httpsOptions });
-
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, { httpsOptions });
   app.enableCors({
     allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
     credentials: true,

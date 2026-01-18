@@ -35,4 +35,9 @@ export class BusinessService {
   remove(id: string) {
     return `This action removes a #${id} business`;
   }
+
+  // Without controller, for local strategy use
+  public async findBySlug(slug: string): Promise<Business | null> {
+    return await this.businessRepository.findOne({ where: { slug }, select: ["id", "slug", "tradeName"] });
+  }
 }

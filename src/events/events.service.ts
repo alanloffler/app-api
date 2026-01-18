@@ -12,9 +12,8 @@ import { UsersService } from "@users/users.service";
 @Injectable()
 export class EventsService {
   constructor(
-    @InjectRepository(Event)
+    @InjectRepository(Event) private readonly eventRepository: Repository<Event>,
     private readonly businessService: BusinessService,
-    private readonly eventRepository: Repository<Event>,
     private readonly usersService: UsersService,
   ) {}
 

@@ -8,6 +8,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { AdminModule } from "@admin/admin.module";
 import { AuthController } from "@auth/auth.controller";
 import { AuthService } from "@auth/auth.service";
+import { BusinessModule } from "@business/business.module";
 import { JwtRefreshStrategy } from "@auth/strategies/jwt-refresh.strategy";
 import { JwtStrategy } from "@auth/strategies/jwt.strategy";
 import { LocalStrategy } from "@auth/strategies/local.strategy";
@@ -33,6 +34,7 @@ import { UsersModule } from "@users/users.module";
         },
       }),
     }),
+    BusinessModule,
     PassportModule,
     TypeOrmModule.forFeature([Role]),
     UsersModule,

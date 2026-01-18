@@ -1,6 +1,7 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 
+import { BusinessModule } from "@business/business.module";
 import { Event } from "@events/entities/event.entity";
 import { EventsController } from "@events/events.controller";
 import { EventsService } from "@events/events.service";
@@ -9,7 +10,7 @@ import { Role } from "@roles/entities/role.entity";
 import { UsersModule } from "@users/users.module";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Event, Permission, Role]), UsersModule],
+  imports: [TypeOrmModule.forFeature([Event, Permission, Role]), BusinessModule, UsersModule],
   controllers: [EventsController],
   providers: [EventsService],
 })

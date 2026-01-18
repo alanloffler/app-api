@@ -1,4 +1,12 @@
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import {
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from "typeorm";
 
 import { User } from "@users/entities/user.entity";
 
@@ -6,6 +14,9 @@ import { User } from "@users/entities/user.entity";
 export class Business {
   @PrimaryGeneratedColumn("uuid")
   id: string;
+
+  @Column({ type: "varchar", length: 50, nullable: false, unique: true })
+  slug: string;
 
   @Column({ type: "varchar", length: 11, name: "tax_id", nullable: false, unique: true })
   taxId: string;

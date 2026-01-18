@@ -33,13 +33,17 @@ export class EventsController {
 
   @RequiredPermissions("events-update")
   @Patch(":id")
-  update(@Param("id", ParseUUIDPipe) id: string, @Body() updateEventDto: UpdateEventDto) {
-    return this.eventsService.update(id, updateEventDto);
+  update(
+    @Param("id", ParseUUIDPipe) id: string,
+    @Body() updateEventDto: UpdateEventDto,
+    @BusinessId(ParseUUIDPipe) businessId: string,
+  ) {
+    return this.eventsService.update(id, updateEventDto, businessId);
   }
 
   @RequiredPermissions("events-delete-hard")
   @Delete(":id")
-  remove(@Param("id", ParseUUIDPipe) id: string) {
-    return this.eventsService.remove(id);
+  remove(@Param("id", ParseUUIDPipe) id: string, @BusinessId(ParseUUIDPipe) businessId: string) {
+    return this.eventsService.remove(id, businessId);
   }
 }

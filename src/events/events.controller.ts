@@ -15,14 +15,14 @@ export class EventsController {
 
   @RequiredPermissions("events-create")
   @Post()
-  create(@Body() createEventDto: CreateEventDto, @BusinessId() businessId: string) {
+  create(@Body() createEventDto: CreateEventDto, @BusinessId(ParseUUIDPipe) businessId: string) {
     return this.eventsService.create(createEventDto, businessId);
   }
 
   @RequiredPermissions("events-view")
   @Get()
-  findAll() {
-    return this.eventsService.findAll();
+  findAll(@BusinessId(ParseUUIDPipe) businessId: string) {
+    return this.eventsService.findAll(businessId);
   }
 
   @RequiredPermissions("events-view")

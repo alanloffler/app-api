@@ -17,7 +17,7 @@ export class EventsService {
     private readonly usersService: UsersService,
   ) {}
 
-  async create(createEventDto: CreateEventDto, businessId: string) {
+  async create(createEventDto: CreateEventDto, businessId: string): Promise<ApiResponse<Event>> {
     const business = await this.businessService.findOne(businessId);
     if (!business) throw new HttpException("Negocio no encontrado al crear el turno", HttpStatus.NOT_FOUND);
 

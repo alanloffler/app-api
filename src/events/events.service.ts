@@ -69,8 +69,8 @@ export class EventsService {
     return ApiResponse.success<Event>("Turno encontrado", event);
   }
 
-  async update(id: string, updateEventDto: UpdateEventDto): Promise<ApiResponse<Event>> {
-    const event = await this.findOneById(id);
+  async update(id: string, updateEventDto: UpdateEventDto, businessId: string): Promise<ApiResponse<Event>> {
+    const event = await this.findOneById(id, businessId);
 
     const newStart = updateEventDto.startDate || event.startDate;
     const newEnd = updateEventDto.endDate || event.endDate;
@@ -92,13 +92,13 @@ export class EventsService {
     const result = await this.eventRepository.update(id, updateEventDto);
     if (!result) throw new HttpException("Error al actualizar turno", HttpStatus.BAD_REQUEST);
 
-    const updatedEvent = await this.findOneById(id);
+    const updatedEvent = await this.findOneById(id, businessId);
 
     return ApiResponse.success<Event>("Turno actualizado", updatedEvent);
   }
 
-  async remove(id: string): Promise<ApiResponse<Event>> {
-    const userToRemove = await this.findOneById(id);
+  async remove(id: string, businessId: string): Promise<ApiResponse<Event>> {
+    const userToRemove = await this.findOneById(id, businessId);
 
     const result = await this.eventRepository.remove(userToRemove);
     if (!result) throw new HttpException("Error al eliminar turno", HttpStatus.BAD_REQUEST);
@@ -107,14 +107,13 @@ export class EventsService {
   }
 
   // Private methods
-  private async findOneById(id: string): Promise<Event> {
-    const event = await this.eventRepository.findOne({ where: { id } });
+  private async findOneById(id: string, businessId: string): Promise<Event> {
+    const event = await this.eventRepository.findOne({ where: { businessId, id } });
     if (!event) throw new HttpException("Turno no encontrado", HttpStatus.NOT_FOUND);
 
     return event;
   }
 
-  // Check to not overlap events, by professional id, start date and end date
   private async checkSlotAvailable(
     data: { professionalId: string; startDate: Date; endDate: Date },
     businessId: string,

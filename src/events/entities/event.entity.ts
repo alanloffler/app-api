@@ -1,4 +1,14 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Index } from "typeorm";
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  Index,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+} from "typeorm";
 
 import { User } from "@users/entities/user.entity";
 
@@ -31,4 +41,13 @@ export class Event {
   @ManyToOne(() => User, { onDelete: "CASCADE" })
   @JoinColumn({ name: "user_id" })
   user: User;
+
+  @CreateDateColumn({ name: "created_at" })
+  createdAt: Date;
+
+  @UpdateDateColumn({ name: "updated_at" })
+  updatedAt: Date;
+
+  @DeleteDateColumn({ name: "deleted_at" })
+  deletedAt: Date;
 }

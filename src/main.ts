@@ -14,7 +14,13 @@ async function bootstrap() {
     credentials: true,
     exposedHeaders: ["Set-Cookie"],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    origin: ["http://localhost:3000", "http://localhost:5173", "https://react-auth-reactive.vercel.app"],
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      callback(null, true);
+
+      const isAllowed = getAllowedPatterns().some((p) => p.test(origin));
+      callback(isAllowed ? null : new Error("Not allowed by CORS"), isAllowed);
+    },
   });
   app.use(cookieParser());
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
@@ -24,3 +30,21 @@ async function bootstrap() {
 }
 
 bootstrap();
+
+const getAllowedPatterns = (): RegExp[] => {
+  const patterns: RegExp[] = [];
+
+  if (process.env.NODE_ENV !== "production") {
+    patterns.push(/^https?:\/\/localhost:\d+$/);
+    patterns.push(/^https?:\/\/[\w-]+\.localhost:\d+$/);
+  }
+
+  const domain = process.env.CORS_DOMAIN;
+  if (domain) {
+    const escaped = domain.replace(/\./g, "\\.");
+    patterns.push(new RegExp(`^https:\\/\\/${escaped}$`));
+    patterns.push(new RegExp(`^https:\\/\\/[\\w-]+\\.${escaped}$`));
+  }
+
+  return patterns;
+};

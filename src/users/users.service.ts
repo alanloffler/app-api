@@ -220,10 +220,10 @@ export class UsersService {
     return ApiResponse.success<User>("Usuario restaurado", restoredUser);
   }
 
-  // TODO: Implement validations
-  // TODO: Implement businessId to search by tenant! First do slug handler
-  public async findOneByEmail(email: string): Promise<User | null> {
-    const user = await this.userRepository.findOne({ where: { email } });
+  // Without controller for external API use
+  public async findOneByEmail(email: string, businessId: string): Promise<User | null> {
+    const user = await this.userRepository.findOne({ where: { businessId, email }, relations: ["role"] });
+    if (!user) return null;
 
     return user;
   }

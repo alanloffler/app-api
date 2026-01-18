@@ -193,11 +193,18 @@ export class AuthService {
   private setTokenCookie(res: Response, tokens: IToken): void {
     const isProduction = this.configService.get("NODE_ENV") === "production";
 
+    // const cookieOptions = {
+    //   domain: isProduction ? `${this.configService.get("APP_DOMAIN")}` : ".lvh.me",
+    //   httpOnly: true,
+    //   path: "/",
+    //   sameSite: isProduction ? ("none" as const) : ("lax" as const),
+    //   secure: isProduction,
+    // };
     const cookieOptions = {
       httpOnly: true,
       path: "/",
-      sameSite: isProduction ? ("none" as const) : ("lax" as const),
-      secure: isProduction,
+      sameSite: "none" as const,
+      secure: true,
     };
 
     res.cookie("accessToken", tokens.accessToken, {
@@ -214,12 +221,19 @@ export class AuthService {
   private clearTokenCookie(res: Response): void {
     const isProduction = this.configService.get("NODE_ENV") === "production";
 
+    // const cookieOptions = {
+    //   domain: isProduction ? `${this.configService.get("APP_DOMAIN")}` : ".lvh.me",
+    //   httpOnly: true,
+    //   maxAge: 0,
+    //   path: "/",
+    //   sameSite: isProduction ? ("none" as const) : ("lax" as const),
+    //   secure: isProduction,
+    // };
     const cookieOptions = {
       httpOnly: true,
-      maxAge: 0,
       path: "/",
-      sameSite: isProduction ? ("none" as const) : ("lax" as const),
-      secure: isProduction,
+      sameSite: "none" as const,
+      secure: true,
     };
 
     res.cookie("accessToken", "", cookieOptions);

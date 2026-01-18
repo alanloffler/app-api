@@ -35,6 +35,7 @@ export class UsersService {
     if (!saveUser) throw new HttpException("Error al crear usuario", HttpStatus.BAD_REQUEST);
 
     const savedUser = await this.findOneById(saveUser.id, businessId);
+    if (!savedUser) throw new HttpException("Usuario no encontrado", HttpStatus.BAD_REQUEST);
 
     return ApiResponse.created<User>("Usuario creado", savedUser);
   }
@@ -189,6 +190,7 @@ export class UsersService {
 
   async softRemove(id: string, businessId: string): Promise<ApiResponse<User>> {
     const userToRemove = await this.findOneById(id, businessId);
+    if (!userToRemove) throw new HttpException("Usuario no encontrado", HttpStatus.NOT_FOUND);
 
     const result = await this.userRepository.softRemove(userToRemove);
     if (!result) throw new HttpException("Error al eliminar usuario", HttpStatus.BAD_REQUEST);
@@ -198,6 +200,7 @@ export class UsersService {
 
   async remove(id: string, businessId: string): Promise<ApiResponse<User>> {
     const userToRemove = await this.findOneById(id, businessId);
+    if (!userToRemove) throw new HttpException("Usuario no encontrado", HttpStatus.NOT_FOUND);
 
     const result = await this.userRepository.remove(userToRemove);
     if (!result) throw new HttpException("Error al eliminar usuario", HttpStatus.BAD_REQUEST);
@@ -216,6 +219,7 @@ export class UsersService {
     if (!result) throw new HttpException("Error al restaurar usuario", HttpStatus.BAD_REQUEST);
 
     const restoredUser = await this.findOneById(id, businessId);
+    if (!restoredUser) throw new HttpException("Usuario no encontrado", HttpStatus.NOT_FOUND);
 
     return ApiResponse.success<User>("Usuario restaurado", restoredUser);
   }
@@ -254,10 +258,8 @@ export class UsersService {
     return ApiResponse.success<boolean>("Disponibilidad de nombre de usuario", username ? false : true);
   }
 
-  public async findOneById(id: string, businessId: string): Promise<User> {
+  public async findOneById(id: string, businessId: string): Promise<User | null> {
     const user = await this.userRepository.findOne({ where: { businessId, id } });
-    if (!user) throw new HttpException("Usuario no encontrado", HttpStatus.NOT_FOUND);
-
     return user;
   }
 

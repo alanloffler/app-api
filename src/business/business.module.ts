@@ -11,5 +11,6 @@ import { Role } from "@roles/entities/role.entity";
   imports: [TypeOrmModule.forFeature([Business, Permission, Role])],
   controllers: [BusinessController],
   providers: [BusinessService],
+  exports: [BusinessService],
 })
 export class BusinessModule {}

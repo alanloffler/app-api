@@ -3,6 +3,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { LessThan, MoreThan, Not, Repository } from "typeorm";
 
 import { ApiResponse } from "@common/helpers/api-response.helper";
+import { BusinessService } from "@business/business.service";
 import { CreateEventDto } from "@events/dto/create-event.dto";
 import { Event } from "@events/entities/event.entity";
 import { UpdateEventDto } from "@events/dto/update-event.dto";
@@ -12,51 +13,50 @@ import { UsersService } from "@users/users.service";
 export class EventsService {
   constructor(
     @InjectRepository(Event)
+    private readonly businessService: BusinessService,
     private readonly eventRepository: Repository<Event>,
-    private readonly userService: UsersService,
+    private readonly usersService: UsersService,
   ) {}
 
   async create(createEventDto: CreateEventDto, businessId: string) {
-    const slotAvailable = await this.checkSlotAvailable(createEventDto);
+    const business = await this.businessService.findOne(businessId);
+    if (!business) throw new HttpException("Negocio no encontrado al crear el turno", HttpStatus.NOT_FOUND);
 
-    if (!slotAvailable) {
-      throw new HttpException("El turno ya existe en la agenda", HttpStatus.BAD_REQUEST);
-    }
+    const professional = await this.usersService.findOneById(createEventDto.professionalId, businessId);
+    if (!professional) throw new HttpException("Profesional no encontrado al crear el turno", HttpStatus.NOT_FOUND);
 
-    // Already handle http exception
-    await this.userService.findOneById(createEventDto.userId, businessId);
+    const user = await this.usersService.findOneById(createEventDto.userId, businessId);
+    if (!user) throw new HttpException("Paciente no encontrado al crear el turno", HttpStatus.NOT_FOUND);
 
-    // TODO: 3. Check if professional exists (must create module!)
+    const slotAvailable = await this.checkSlotAvailable(createEventDto, businessId);
+    if (!slotAvailable) throw new HttpException("El turno ya existe en la agenda", HttpStatus.BAD_REQUEST);
 
-    const newEvent = this.eventRepository.create(createEventDto);
+    const fullDto = { ...createEventDto, businessId };
+    const newEvent = this.eventRepository.create(fullDto);
     const saveEvent = await this.eventRepository.save(newEvent);
-
-    if (!saveEvent) {
-      throw new HttpException("Error al crear el turno", HttpStatus.BAD_REQUEST);
-    }
+    if (!saveEvent) throw new HttpException("Error al crear el turno", HttpStatus.BAD_REQUEST);
 
     return ApiResponse.created<Event>("Turno creado", saveEvent);
   }
 
-  async findAll() {
-    // throw new HttpException("Error al obtener los turnos", HttpStatus.BAD_REQUEST);
-    const events = await this.eventRepository.find({
-      relations: ["user", "user.role"],
-      select: {
-        user: {
-          id: true,
-          ic: true,
-          phoneNumber: true,
-          email: true,
-          firstName: true,
-          lastName: true,
-          role: {
-            name: true,
-            value: true,
-          },
-        },
-      },
-    });
+  async findAll(businessId: string): Promise<ApiResponse<Event[]>> {
+    const events = await this.eventRepository
+      .createQueryBuilder("event")
+      .leftJoin("event.user", "user")
+      .leftJoin("user.role", "role")
+      .select([
+        "event",
+        "user.id",
+        "user.ic",
+        "user.phoneNumber",
+        "user.email",
+        "user.firstName",
+        "user.lastName",
+        "role.name",
+        "role.value",
+      ])
+      .where("event.businessId = :businessId", { businessId })
+      .getMany();
     if (!events) throw new HttpException("Error al obtener los turnos", HttpStatus.NOT_FOUND);
 
     return ApiResponse.success<Event[]>("Turnos encontrados", events);
@@ -115,13 +115,14 @@ export class EventsService {
   }
 
   // Check to not overlap events, by professional id, start date and end date
-  // TODO: check if professional exists (must create module!)
   private async checkSlotAvailable(
     data: { professionalId: string; startDate: Date; endDate: Date },
+    businessId: string,
     excludeId?: string,
   ): Promise<boolean> {
     const overlappingEvent = await this.eventRepository.findOne({
       where: {
+        businessId,
         professionalId: data.professionalId,
         startDate: LessThan(data.endDate),
         endDate: MoreThan(data.startDate),

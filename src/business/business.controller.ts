@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from "@nestjs/common";
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, ParseUUIDPipe } from "@nestjs/common";
 
 import { BusinessService } from "@business/business.service";
 import { CreateBusinessDto } from "@business/dto/create-business.dto";
@@ -23,7 +23,7 @@ export class BusinessController {
   }
 
   @Get(":id")
-  findOne(@Param("id") id: string) {
+  findOne(@Param("id", ParseUUIDPipe) id: string) {
     return this.businessService.findOne(id);
   }
 

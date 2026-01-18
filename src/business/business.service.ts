@@ -24,8 +24,11 @@ export class BusinessService {
     return `This action returns all business`;
   }
 
-  findOne(id: string) {
-    return `This action returns a #${id} business`;
+  async findOne(id: string): Promise<ApiResponse<Business>> {
+    const business = await this.businessRepository.findOne({ where: { id } });
+    if (!business) throw new HttpException("Negocio no encontrado", HttpStatus.NOT_FOUND);
+
+    return ApiResponse.success<Business>("Negocio encontrado", business);
   }
 
   update(id: string, updateBusinessDto: UpdateBusinessDto) {

@@ -5,16 +5,16 @@ import { Request } from "express";
 import { Strategy } from "passport-local";
 
 import type { IPayload } from "@auth/interfaces/payload.interface";
-// import { Admin } from "@admin/entities/admin.entity";
-// import { AdminService } from "@admin/admin.service";
+import { BusinessService } from "@business/business.service";
 import { EAuthType } from "@auth/enums/auth-type.enum";
 import { User } from "@users/entities/user.entity";
 import { UsersService } from "@users/users.service";
+import { extractSlugFromOrigin } from "@auth/helpers/extractSlugFromOrigin";
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
   constructor(
-    // private readonly adminService: AdminService,
+    private readonly businessService: BusinessService,
     private readonly userService: UsersService,
   ) {
     super({
@@ -27,18 +27,17 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
   async validate(req: Request, email: string, password: string): Promise<IPayload> {
     const type = req.body.type;
 
-    // TODO: remove logic when remove Admin entity!
-    // IMPORTANT
-    // let user: Admin | User | null = null;
+    const slug = extractSlugFromOrigin(req.headers.origin);
+    if (!slug) throw new HttpException("Tenant no identificado", HttpStatus.BAD_REQUEST);
+
+    const business = await this.businessService.findBySlug(slug);
+    if (!business) throw new HttpException("Tenant no encontrado", HttpStatus.BAD_REQUEST);
+
     let user: User | null = null;
 
     if (type === EAuthType.USER) {
-      user = await this.userService.findOneByEmail(email);
-    }
-    // else if (type === EAuthType.ADMIN) {
-    // user = await this.adminService.findOneByEmail(email);
-    // }
-    else {
+      user = await this.userService.findOneByEmail(email, business.id);
+    } else {
       throw new HttpException("Credenciales inválidas (type)", HttpStatus.UNAUTHORIZED);
     }
 

@@ -3,6 +3,7 @@ import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Index } 
 import { User } from "@users/entities/user.entity";
 
 @Entity("events")
+@Index("idx_events_business_start", ["businessId", "startDate"])
 @Index("idx_events_professional_start", ["professionalId", "startDate"])
 @Index("idx_events_user_start", ["userId", "startDate"])
 export class Event {
@@ -17,6 +18,9 @@ export class Event {
 
   @Column({ name: "end_date", type: "timestamptz", nullable: false })
   endDate: Date;
+
+  @Column({ name: "business_id", type: "uuid", nullable: false })
+  businessId: string;
 
   @Column({ name: "professional_id", type: "uuid", nullable: false })
   professionalId: string;

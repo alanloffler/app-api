@@ -27,8 +27,8 @@ export class EventsController {
 
   @RequiredPermissions("events-view")
   @Get(":id")
-  findOne(@Param("id", ParseUUIDPipe) id: string) {
-    return this.eventsService.findOne(id);
+  findOne(@Param("id", ParseUUIDPipe) id: string, @BusinessId(ParseUUIDPipe) businessId: string) {
+    return this.eventsService.findOne(id, businessId);
   }
 
   @RequiredPermissions("events-update")

@@ -18,14 +18,9 @@ export class EventsService {
   ) {}
 
   async create(createEventDto: CreateEventDto, businessId: string): Promise<ApiResponse<Event>> {
-    const business = await this.businessService.findOne(businessId);
-    if (!business) throw new HttpException("Negocio no encontrado al crear el turno", HttpStatus.NOT_FOUND);
-
-    const professional = await this.usersService.findOneById(createEventDto.professionalId, businessId);
-    if (!professional) throw new HttpException("Profesional no encontrado al crear el turno", HttpStatus.NOT_FOUND);
-
-    const user = await this.usersService.findOneById(createEventDto.userId, businessId);
-    if (!user) throw new HttpException("Paciente no encontrado al crear el turno", HttpStatus.NOT_FOUND);
+    await this.checkBusiness(businessId);
+    await this.checkProfessional(createEventDto.professionalId, businessId);
+    await this.checkPatient(createEventDto.userId, businessId);
 
     const slotAvailable = await this.checkSlotAvailable(createEventDto, businessId);
     if (!slotAvailable) throw new HttpException("El turno ya existe en la agenda", HttpStatus.BAD_REQUEST);
@@ -69,8 +64,11 @@ export class EventsService {
   }
 
   async update(id: string, updateEventDto: UpdateEventDto, businessId: string): Promise<ApiResponse<Event>> {
-    const event = await this.findOneById(id, businessId);
+    await this.checkBusiness(businessId);
+    await this.checkProfessional(updateEventDto?.professionalId, businessId);
+    await this.checkPatient(updateEventDto?.userId, businessId);
 
+    const event = await this.findOneById(id, businessId);
     const newStart = updateEventDto.startDate || event.startDate;
     const newEnd = updateEventDto.endDate || event.endDate;
     const newProfessional = updateEventDto.professionalId || event.professionalId;
@@ -81,12 +79,11 @@ export class EventsService {
         startDate: newStart,
         endDate: newEnd,
       },
+      businessId,
       event.id,
     );
 
-    if (!slotAvailable) {
-      throw new HttpException("El turno se superpone con otro existente", HttpStatus.BAD_REQUEST);
-    }
+    if (!slotAvailable) throw new HttpException("El turno se superpone con otro existente", HttpStatus.BAD_REQUEST);
 
     const result = await this.eventRepository.update(id, updateEventDto);
     if (!result) throw new HttpException("Error al actualizar turno", HttpStatus.BAD_REQUEST);
@@ -111,6 +108,27 @@ export class EventsService {
     if (!event) throw new HttpException("Turno no encontrado", HttpStatus.NOT_FOUND);
 
     return event;
+  }
+
+  private async checkBusiness(businessId?: string): Promise<void> {
+    if (!businessId) throw new HttpException("Negocio no encontrado al crear el turno", HttpStatus.NOT_FOUND);
+
+    const business = await this.businessService.findOne(businessId);
+    if (!business) throw new HttpException("Negocio no encontrado al crear el turno", HttpStatus.NOT_FOUND);
+  }
+
+  private async checkProfessional(professionalId?: string, businessId?: string): Promise<void> {
+    if (!professionalId || !businessId) return;
+
+    const professional = await this.usersService.findOneById(professionalId, businessId);
+    if (!professional) throw new HttpException("Profesional no encontrado al crear el turno", HttpStatus.NOT_FOUND);
+  }
+
+  private async checkPatient(userId?: string, businessId?: string): Promise<void> {
+    if (!userId || !businessId) return;
+
+    const user = await this.usersService.findOneById(userId, businessId);
+    if (!user) throw new HttpException("Paciente no encontrado al crear el turno", HttpStatus.NOT_FOUND);
   }
 
   private async checkSlotAvailable(

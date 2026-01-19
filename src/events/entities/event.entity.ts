@@ -35,6 +35,10 @@ export class Event {
   @Column({ name: "professional_id", type: "uuid", nullable: false })
   professionalId: string;
 
+  @ManyToOne(() => User, { onDelete: "CASCADE" })
+  @JoinColumn({ name: "professional_id" })
+  professional: User;
+
   @Column({ name: "user_id", type: "uuid", nullable: false })
   userId: string;
 

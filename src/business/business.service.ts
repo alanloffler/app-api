@@ -25,7 +25,13 @@ export class BusinessService {
   }
 
   async findOne(id: string): Promise<ApiResponse<Business>> {
-    const business = await this.businessRepository.findOne({ where: { id } });
+    const business = await this.businessRepository
+      .createQueryBuilder("business")
+      .leftJoinAndSelect("business.users", "user")
+      .leftJoinAndSelect("user.role", "role")
+      .where("business.id = :id", { id })
+      .andWhere("role.value = :type", { type: "patient" })
+      .getOne();
     if (!business) throw new HttpException("Negocio no encontrado", HttpStatus.NOT_FOUND);
 
     return ApiResponse.success<Business>("Negocio encontrado", business);

@@ -31,6 +31,8 @@ export class BusinessService {
       .leftJoinAndSelect("user.role", "role")
       .where("business.id = :id", { id })
       .andWhere("role.value = :type", { type: "patient" })
+      .limit(5)
+      .orderBy("user.createdAt", "DESC")
       .getOne();
     if (!business) throw new HttpException("Negocio no encontrado", HttpStatus.NOT_FOUND);
 

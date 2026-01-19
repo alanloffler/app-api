@@ -36,20 +36,28 @@ export class EventsService {
   async findAll(businessId: string): Promise<ApiResponse<Event[]>> {
     const events = await this.eventRepository
       .createQueryBuilder("event")
+      .where("event.businessId = :businessId", { businessId })
       .leftJoin("event.user", "user")
-      .leftJoin("user.role", "role")
+      .leftJoin("user.role", "userRole")
+      .leftJoin("event.professional", "professional")
+      .leftJoin("professional.role", "profRole")
       .select([
         "event",
-        "user.id",
-        "user.ic",
-        "user.phoneNumber",
+        "profRole.name",
+        "profRole.value",
+        "professional.firstName",
+        "professional.ic",
+        "professional.id",
+        "professional.lastName",
         "user.email",
         "user.firstName",
+        "user.ic",
+        "user.id",
         "user.lastName",
-        "role.name",
-        "role.value",
+        "user.phoneNumber",
+        "userRole.name",
+        "userRole.value",
       ])
-      .where("event.businessId = :businessId", { businessId })
       .getMany();
     if (!events) throw new HttpException("Error al obtener los turnos", HttpStatus.NOT_FOUND);
 
@@ -104,7 +112,32 @@ export class EventsService {
 
   // Private methods
   private async findOneById(id: string, businessId: string): Promise<Event> {
-    const event = await this.eventRepository.findOne({ where: { businessId, id } });
+    const event = await this.eventRepository
+      .createQueryBuilder("event")
+      .where("event.businessId = :businessId", { businessId })
+      .andWhere("event.id = :id", { id })
+      .leftJoin("event.user", "user")
+      .leftJoin("user.role", "userRole")
+      .leftJoin("event.professional", "professional")
+      .leftJoin("professional.role", "profRole")
+      .select([
+        "event",
+        "profRole.name",
+        "profRole.value",
+        "professional.firstName",
+        "professional.ic",
+        "professional.id",
+        "professional.lastName",
+        "user.email",
+        "user.firstName",
+        "user.ic",
+        "user.id",
+        "user.lastName",
+        "user.phoneNumber",
+        "userRole.name",
+        "userRole.value",
+      ])
+      .getOne();
     if (!event) throw new HttpException("Turno no encontrado", HttpStatus.NOT_FOUND);
 
     return event;

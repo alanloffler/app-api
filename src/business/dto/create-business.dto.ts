@@ -1,6 +1,11 @@
 import { IsEmail, IsNotEmpty, IsOptional, IsString, Length, MinLength } from "class-validator";
 
 export class CreateBusinessDto {
+  @MinLength(3, { message: "El subdominio debe tener al menos 3 caracteres" })
+  @IsString({ message: "El subdominio debe ser una cadena de texto" })
+  @IsNotEmpty({ message: "El subdominio es obligatorio" })
+  slug: string;
+
   @Length(11, 11, { message: "El CUIT debe tener 11 dígitos" })
   @IsString({ message: "El CUIT debe ser una cadena de texto" })
   @IsNotEmpty({ message: "El CUIT es obligatorio" })

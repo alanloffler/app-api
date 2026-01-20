@@ -1,5 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, ParseUUIDPipe } from "@nestjs/common";
 
+import { BusinessId } from "@common/decorators/business-id.decorator";
 import { BusinessService } from "@business/business.service";
 import { CreateBusinessDto } from "@business/dto/create-business.dto";
 import { JwtAuthGuard } from "@auth/guards/jwt-auth.guard";
@@ -17,14 +18,14 @@ export class BusinessController {
     return this.businessService.create(createBusinessDto);
   }
 
+  @Get("find-one")
+  findOne(@BusinessId(ParseUUIDPipe) id: string) {
+    return this.businessService.findOne(id);
+  }
+
   @Get()
   findAll() {
     return this.businessService.findAll();
-  }
-
-  @Get(":id")
-  findOne(@Param("id", ParseUUIDPipe) id: string) {
-    return this.businessService.findOne(id);
   }
 
   @Patch(":id")

@@ -24,12 +24,12 @@ export class BusinessService {
     return `This action returns all business`;
   }
 
-  async findOne(id: string): Promise<ApiResponse<Business>> {
+  async findOne(businessId: string): Promise<ApiResponse<Business>> {
     const business = await this.businessRepository
       .createQueryBuilder("business")
       .leftJoinAndSelect("business.users", "user")
       .leftJoinAndSelect("user.role", "role")
-      .where("business.id = :id", { id })
+      .where("business.id = :businessId", { businessId })
       .andWhere("role.value = :type", { type: "patient" })
       .limit(5)
       .orderBy("user.createdAt", "DESC")

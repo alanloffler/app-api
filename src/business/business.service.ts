@@ -39,8 +39,31 @@ export class BusinessService {
     return ApiResponse.success<Business>("Negocio encontrado", business);
   }
 
-  update(id: string, updateBusinessDto: UpdateBusinessDto) {
-    return `This action updates a #${id} business`;
+  async update(businessId: string, updateBusinessDto: UpdateBusinessDto) {
+    if (updateBusinessDto.taxId) {
+      const availableTaxId = await this.checkTaxIdAvailability(updateBusinessDto.taxId, businessId);
+      if (!availableTaxId)
+        throw new HttpException("CUIT no disponible, debes elegir un CUIT diferente", HttpStatus.BAD_REQUEST);
+    }
+
+    if (updateBusinessDto.slug) {
+      const availableSlug = await this.checkSlugAvailability(updateBusinessDto.slug, businessId);
+      if (!availableSlug)
+        throw new HttpException(
+          "Subdominio no disponible, debes elegir un subdominio diferente",
+          HttpStatus.BAD_REQUEST,
+        );
+    }
+
+    const business = await this.businessRepository.update(businessId, updateBusinessDto);
+    if (!business) throw new HttpException("Error al actualizar negocio", HttpStatus.NOT_FOUND);
+    // TODO: if taxId or slug changed, then invalidate session (refreshToken)
+    // TODO: if slug changed, then notify admin by email (maybe all business changes must by notified)
+
+    const updatedBusiness = await this.businessRepository.findOneBy({ id: businessId });
+    if (!updatedBusiness) throw new HttpException("Negocio no encontrado", HttpStatus.NOT_FOUND);
+
+    return ApiResponse.success<Business>("Negocio actualizado", updatedBusiness);
   }
 
   remove(id: string) {
@@ -50,5 +73,27 @@ export class BusinessService {
   // Without controller, for local strategy use
   public async findBySlug(slug: string): Promise<Business | null> {
     return await this.businessRepository.findOne({ where: { slug }, select: ["id", "slug", "tradeName"] });
+  }
+
+  // Will be used as public on business creation
+  public async checkTaxIdAvailability(taxId: string, excludeId?: string): Promise<boolean> {
+    const query = this.businessRepository.createQueryBuilder("business").where("business.taxId = :taxId", { taxId });
+
+    if (excludeId) query.andWhere("business.id != :excludeId", { excludeId });
+
+    const business = await query.getOne();
+
+    return !business;
+  }
+
+  // Will be used as public on business creation
+  public async checkSlugAvailability(slug: string, excludeId?: string): Promise<boolean> {
+    const query = this.businessRepository.createQueryBuilder("business").where("business.slug = :slug", { slug });
+
+    if (excludeId) query.andWhere("business.id != :excludeId", { excludeId });
+
+    const business = await query.getOne();
+
+    return !business;
   }
 }

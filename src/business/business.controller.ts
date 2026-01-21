@@ -28,9 +28,9 @@ export class BusinessController {
     return this.businessService.findAll();
   }
 
-  @Patch()
-  update(@BusinessId(ParseUUIDPipe) businessId: string, @Body() updateBusinessDto: UpdateBusinessDto) {
-    return this.businessService.update(businessId, updateBusinessDto);
+  @Patch(":id")
+  update(@Param("id", ParseUUIDPipe) id: string, @Body() updateBusinessDto: UpdateBusinessDto) {
+    return this.businessService.update(id, updateBusinessDto);
   }
 
   @Delete(":id")

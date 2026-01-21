@@ -8,6 +8,7 @@ import { CacheConfigModule } from "@config/cache-config.module";
 import { EventsModule } from "@events/events.module";
 import { NotificationsModule } from "@notifications/notifications.module";
 import { PermissionsModule } from "@permissions/permissions.module";
+import { ProfessionalProfileModule } from "@professional-profile/professional-profile.module";
 import { RolesModule } from "@roles/roles.module";
 import { SettingsModule } from "@settings/settings.module";
 import { UsersModule } from "@users/users.module";
@@ -25,13 +26,14 @@ import { typeOrmConfig } from "@config/typeorm.config";
       autoLoadEntities: true,
     }),
     AuthModule,
+    BusinessModule,
     EventsModule,
     NotificationsModule,
     PermissionsModule,
+    ProfessionalProfileModule,
     RolesModule,
     SettingsModule,
     UsersModule,
-    BusinessModule,
   ],
   controllers: [],
   providers: [],

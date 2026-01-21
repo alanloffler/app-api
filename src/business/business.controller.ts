@@ -23,6 +23,11 @@ export class BusinessController {
     return this.businessService.findOne(id);
   }
 
+  @Get("check-slug-availability/:slug")
+  checkSlugAvailability(@Param("slug") slug: string) {
+    return this.businessService.checkSlugAvailability(slug);
+  }
+
   @Get()
   findAll() {
     return this.businessService.findAll();

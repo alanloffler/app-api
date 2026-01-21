@@ -30,6 +30,7 @@
       "@events/*": ["./src/events/*"],
       "@notifications/*": ["src/notifications/*"],
       "@permissions/*": ["./src/permissions/*"],
+      "@professional-profile/*": ["./src/professional-profile/*"],
       "@roles/*": ["./src/roles/*"],
       "@settings/*": ["./src/settings/*"],
       "@users/*": ["./src/users/*"]

@@ -22,11 +22,11 @@ export class ProfessionalProfile {
   @JoinColumn({ name: "user_id" })
   user: User;
 
-  @Column({ type: "varchar", length: 20, name: "license_id", nullable: false })
+  @Column({ type: "varchar", name: "license_id", nullable: false })
   licenseId: string;
 
-  @Column({ type: "simple-array", nullable: false })
-  specialties: string[];
+  @Column({ type: "varchar", nullable: false })
+  specialty: string;
 
   @Column({ type: "simple-array", name: "working_days", nullable: false })
   workingDays: number[];

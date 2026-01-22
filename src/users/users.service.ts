@@ -1,11 +1,13 @@
 import * as bcrypt from "bcrypt";
 import { ConfigService } from "@nestjs/config";
+import { DataSource, Repository } from "typeorm";
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
 
 import { ApiResponse } from "@common/helpers/api-response.helper";
+import { CreateProfessionalDto } from "@users/dto/create-professional.dto";
 import { CreateUserDto } from "@users/dto/create-user.dto";
+import { ProfessionalProfile } from "@professional-profile/entities/professional-profile.entity";
 import { UpdateUserDto } from "@users/dto/update-user.dto";
 import { User } from "@users/entities/user.entity";
 
@@ -14,7 +16,86 @@ export class UsersService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
     private readonly configService: ConfigService,
+    private readonly dataSource: DataSource,
   ) {}
+
+  async createProfessional(
+    professionalDto: CreateProfessionalDto,
+    businessId: string,
+  ): Promise<ApiResponse<{ user: User; profile: ProfessionalProfile }>> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const existingIc = await queryRunner.manager.findOne(User, {
+        where: { businessId, ic: professionalDto.user.ic },
+      });
+      if (existingIc) throw new HttpException("DNI ya registrado", HttpStatus.BAD_REQUEST);
+
+      const existingEmail = await queryRunner.manager.findOne(User, {
+        where: { businessId, email: professionalDto.user.email },
+      });
+      if (existingEmail) throw new HttpException("Email ya registrado", HttpStatus.BAD_REQUEST);
+
+      const existingLicense = await queryRunner.manager.findOne(ProfessionalProfile, {
+        where: { licenseId: professionalDto.profile.licenseId },
+      });
+      if (existingLicense) throw new HttpException("Matrícula ya registrada", HttpStatus.BAD_REQUEST);
+
+      const saltRounds = parseInt(this.configService.get("BCRYPT_SALT_ROUNDS") || "10");
+      const hashedPassword = await bcrypt.hash(professionalDto.user.password, saltRounds);
+
+      const user = queryRunner.manager.create(User, {
+        ...professionalDto.user,
+        businessId,
+        password: hashedPassword,
+      });
+      const savedUser = await queryRunner.manager.save(user);
+
+      const profile = queryRunner.manager.create(ProfessionalProfile, {
+        ...professionalDto.profile,
+        userId: savedUser.id,
+      });
+      const savedProfile = await queryRunner.manager.save(profile);
+
+      await queryRunner.commitTransaction();
+
+      return ApiResponse.created("Profesional creado", { user: savedUser, profile: savedProfile });
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+
+      if (error instanceof HttpException) throw error;
+
+      if (error.code === "23505") {
+        console.log(error);
+        if (error.detail?.includes("email")) {
+          throw new HttpException("Email ya registrado", HttpStatus.BAD_REQUEST);
+        }
+        if (error.detail?.includes("ic")) {
+          throw new HttpException("DNI ya registrado", HttpStatus.BAD_REQUEST);
+        }
+        if (error.detail?.includes("license_id")) {
+          throw new HttpException("Matrícula ya registrada", HttpStatus.BAD_REQUEST);
+        }
+        throw new HttpException("Ya existe un registro con estos datos", HttpStatus.BAD_REQUEST);
+      }
+
+      if (error.code === "23502") {
+        const column = error.column || "desconocido";
+        throw new HttpException(`El campo '${column}' es obligatorio`, HttpStatus.BAD_REQUEST);
+      }
+
+      if (error.code === "23503") {
+        throw new HttpException("Referencia inválida: el registro relacionado no existe", HttpStatus.BAD_REQUEST);
+      }
+
+      const message = error.message || "Error al crear profesional";
+      throw new HttpException(message, HttpStatus.BAD_REQUEST);
+    } finally {
+      await queryRunner.release();
+    }
+  }
 
   async create(createUserDto: CreateUserDto, businessId: string): Promise<ApiResponse<User>> {
     console.log(businessId);

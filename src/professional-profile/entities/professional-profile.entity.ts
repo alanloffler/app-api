@@ -25,6 +25,9 @@ export class ProfessionalProfile {
   @Column({ type: "varchar", name: "license_id", nullable: false })
   licenseId: string;
 
+  @Column({ type: "varchar", name: "professional_prefix", nullable: false })
+  professionalPrefix: string;
+
   @Column({ type: "varchar", nullable: false })
   specialty: string;
 

@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Request, Delete, UseGuards, 
 
 import type { IRequest } from "@auth/interfaces/request.interface";
 import { BusinessId } from "@common/decorators/business-id.decorator";
+import { CreateProfessionalDto } from "@users/dto/create-professional.dto";
 import { CreateUserDto } from "@users/dto/create-user.dto";
 import { JwtAuthGuard } from "@auth/guards/jwt-auth.guard";
 import { PermissionsGuard } from "@auth/guards/permissions.guard";
@@ -14,7 +15,13 @@ import { UsersService } from "@users/users.service";
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @RequiredPermissions(["admin-create", "patient-create", "professional-create"], "some")
+  @RequiredPermissions("professional-create")
+  @Post("create-professional")
+  createProfessional(@Body() professionalDto: CreateProfessionalDto, @BusinessId() businessId: string) {
+    return this.usersService.createProfessional(professionalDto, businessId);
+  }
+
+  @RequiredPermissions(["admin-create", "patient-create"], "some")
   @Post()
   create(@Body() user: CreateUserDto, @BusinessId() businessId: string) {
     return this.usersService.create(user, businessId);

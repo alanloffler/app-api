@@ -21,10 +21,10 @@ export class CreateProfessionalProfileDto {
   @IsNotEmpty({ message: "La matrícula es obligatoria" })
   licenseId: string;
 
-  @IsString({ each: true, message: "Cada especialidad debe ser una cadena de texto" })
-  @ArrayNotEmpty({ message: "Debes agregar al menos una especialidad" })
-  @IsArray({ message: "Las especialidades deben ser un array" })
-  specialties: string[];
+  @MaxLength(20, { message: "La especialidad debe tener como máximo 20 caracteres" })
+  @MinLength(3, { message: "La especialidad debe tener al menos 3 caracteres" })
+  @IsNotEmpty({ message: "La especialidad es obligatoria" })
+  specialty: string;
 
   @IsInt({ each: true, message: "Cada día laboral debe ser un número entero" })
   @Min(0, { message: "El día laboral mínimo es 0 (Domingo)" })

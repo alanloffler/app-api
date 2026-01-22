@@ -20,8 +20,8 @@ export class CreateProfessionalProfileDto {
   specialty: string;
 
   @IsInt({ each: true, message: "Cada día laboral debe ser un número entero" })
-  @Min(0, { message: "El día laboral mínimo es 0 (Domingo)" })
-  @Max(6, { message: "El día máximo es 6 (Sábado)" })
+  @Min(0, { each: true, message: "El día laboral mínimo es 0 (Domingo)" })
+  @Max(6, { each: true, message: "El día máximo es 6 (Sábado)" })
   @ArrayNotEmpty({ message: "Debes agregar al menos un día laboral" })
   @IsArray({ message: "Los días laborales deben ser un array" })
   workingDays: number[];

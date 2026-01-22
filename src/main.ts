@@ -1,10 +1,11 @@
 import cookieParser from "cookie-parser";
-import { ClassSerializerInterceptor, ValidationPipe } from "@nestjs/common";
+import { BadRequestException, ClassSerializerInterceptor, ValidationError, ValidationPipe } from "@nestjs/common";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { NestFactory, Reflector } from "@nestjs/core";
 import { readFileSync } from "fs";
 
 import { AppModule } from "@/app.module";
+import { flattenErrors } from "@common/validators/flatten-errors.validator";
 import { getAllowedPatterns } from "@common/helpers/domain-patterns.helper";
 
 async function bootstrap() {
@@ -35,7 +36,16 @@ async function bootstrap() {
     },
   });
   app.use(cookieParser());
-  app.useGlobalPipes(new ValidationPipe({ transform: true }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      exceptionFactory: (errors: ValidationError[]) => {
+        return new BadRequestException({
+          errors: flattenErrors(errors),
+        });
+      },
+    }),
+  );
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
   await app.listen(PORT);

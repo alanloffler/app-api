@@ -18,11 +18,19 @@ export class CreateProfessionalProfileDto {
 
   @MaxLength(20, { message: "La matrícula debe tener como máximo 20 caracteres" })
   @MinLength(3, { message: "La matrícula debe tener al menos 3 caracteres" })
+  @IsString({ message: "La matrícula debe ser una cadena de texto" })
   @IsNotEmpty({ message: "La matrícula es obligatoria" })
   licenseId: string;
 
+  @MaxLength(20, { message: "El prefijo profesional debe tener como máximo 20 caracteres" })
+  @MinLength(3, { message: "El prefijo profesional debe tener al menos 3 caracteres" })
+  @IsString({ message: "El prefijo profesional debe ser una cadena de texto" })
+  @IsNotEmpty({ message: "El prefijo profesional es obligatorio" })
+  professionalPrefix: string;
+
   @MaxLength(20, { message: "La especialidad debe tener como máximo 20 caracteres" })
   @MinLength(3, { message: "La especialidad debe tener al menos 3 caracteres" })
+  @IsString({ message: "La especialidad debe ser una cadena de texto" })
   @IsNotEmpty({ message: "La especialidad es obligatoria" })
   specialty: string;
 

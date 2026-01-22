@@ -17,6 +17,8 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: CreateUserDto, businessId: string): Promise<ApiResponse<User>> {
+    console.log(businessId);
+
     const checkIc = await this.checkIcAvailability(createUserDto.ic, businessId);
     if (checkIc.data === false) throw new HttpException("DNI ya registrado", HttpStatus.BAD_REQUEST);
 
@@ -26,8 +28,10 @@ export class UsersService {
     const saltRounds = parseInt(this.configService.get("BCRYPT_SALT_ROUNDS") || "10");
     const hashedPassword = await bcrypt.hash(createUserDto.password, saltRounds);
 
+    // TODO: transaction to also store the profile with settings
     const createUser = this.userRepository.create({
       ...createUserDto,
+      businessId,
       password: hashedPassword,
     });
 

@@ -32,7 +32,7 @@ export class CreateUserDto {
   @IsNotEmpty({ message: "El número de teléfono es obligatorio" })
   phoneNumber: string;
 
-  @IsUUID()
+  @IsUUID("4", { message: "El rol debe ser un UUID v4" })
   @IsNotEmpty({ message: "El rol es obligatorio" })
   roleId: string;
 

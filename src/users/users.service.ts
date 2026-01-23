@@ -8,6 +8,7 @@ import { ApiResponse } from "@common/helpers/api-response.helper";
 import { CreateProfessionalDto } from "@users/dto/create-professional.dto";
 import { CreateUserDto } from "@users/dto/create-user.dto";
 import { ProfessionalProfile } from "@professional-profile/entities/professional-profile.entity";
+import { USER_PROFILE_SELECT, USER_ROLE_SELECT, USER_SELECT } from "@users/constants/user-select.constant";
 import { UpdateUserDto } from "@users/dto/update-user.dto";
 import { User } from "@users/entities/user.entity";
 
@@ -124,26 +125,11 @@ export class UsersService {
 
     return ApiResponse.created<User>("Usuario creado", savedUser);
   }
-
   async findAll(role: string, businessId: string): Promise<ApiResponse<User[]>> {
     const users = await this.userRepository
       .createQueryBuilder("user")
       .leftJoin("user.role", "role")
-      .select([
-        "user.id",
-        "user.ic",
-        "user.userName",
-        "user.firstName",
-        "user.lastName",
-        "user.email",
-        "user.phoneNumber",
-        "user.roleId",
-        "user.createdAt",
-        "user.updatedAt",
-        "role.id",
-        "role.name",
-        "role.value",
-      ])
+      .select(USER_SELECT)
       .where("user.businessId = :businessId", { businessId })
       .andWhere("role.value = :role", { role })
       .getMany();
@@ -182,6 +168,7 @@ export class UsersService {
     return ApiResponse.success<User[]>("Usuarios encontrados", users);
   }
 
+  // TODO: profile relation on all services. Choose props!
   async findOne(id: string, businessId: string): Promise<ApiResponse<User>> {
     const user = await this.userRepository.findOne({
       where: { businessId, id },
@@ -205,25 +192,15 @@ export class UsersService {
   }
 
   async findOneSoftRemoved(id: string, businessId: string): Promise<ApiResponse<User>> {
-    const user = await this.userRepository.findOne({
-      where: { businessId, id },
-      select: [
-        "id",
-        "ic",
-        "userName",
-        "firstName",
-        "lastName",
-        "email",
-        "phoneNumber",
-        "role",
-        "roleId",
-        "createdAt",
-        "updatedAt",
-        "deletedAt",
-      ],
-      relations: ["professionalProfile"],
-      withDeleted: true,
-    });
+    const user = await this.userRepository
+      .createQueryBuilder("user")
+      .leftJoinAndSelect("user.role", "role")
+      .leftJoinAndSelect("user.professionalProfile", "profile")
+      .select([...USER_SELECT, ...USER_ROLE_SELECT, ...USER_PROFILE_SELECT])
+      .where("user.businessId = :businessId", { businessId })
+      .andWhere("user.id = :id", { id })
+      .withDeleted()
+      .getOne();
     if (!user) throw new HttpException("Usuario no encontrado", HttpStatus.NOT_FOUND);
 
     return ApiResponse.success<User>("Usuario encontrado", user);

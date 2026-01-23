@@ -55,6 +55,8 @@ export class UsersController {
   }
 
   // Without permissions, user can view his own profile
+  // CHECK USE OF THIS CONTROLLER: this is the only which must
+  // retrieve data with permissions!
   @Get("profile")
   findMe(@Request() req: IRequest, @BusinessId() businessId: string) {
     const userId = req.user.id;

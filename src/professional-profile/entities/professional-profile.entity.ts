@@ -43,10 +43,10 @@ export class ProfessionalProfile {
   @Column({ type: "varchar", name: "slot_duration", nullable: false, default: "60" })
   slotDuration: string;
 
-  @Column({ type: "varchar", name: "daily_exception_start", nullable: false, default: "12:00" })
+  @Column({ type: "varchar", name: "daily_exception_start", nullable: true })
   dailyExceptionStart: string;
 
-  @Column({ type: "varchar", name: "daily_exception_end", nullable: false, default: "14:00" })
+  @Column({ type: "varchar", name: "daily_exception_end", nullable: true })
   dailyExceptionEnd: string;
 
   @CreateDateColumn({ name: "created_at" })

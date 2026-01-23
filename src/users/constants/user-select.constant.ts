@@ -20,6 +20,9 @@ export const USER_PROFILE_SELECT = [
   "profile.workingDays",
   "profile.startHour",
   "profile.endHour",
+  "profile.slotDuration",
+  "profile.dailyExceptionStart",
+  "profile.dailyExceptionEnd",
   "profile.createdAt",
   "profile.updatedAt",
 ];

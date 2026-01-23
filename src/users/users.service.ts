@@ -221,6 +221,7 @@ export class UsersService {
         "updatedAt",
         "deletedAt",
       ],
+      relations: ["professionalProfile"],
       withDeleted: true,
     });
     if (!user) throw new HttpException("Usuario no encontrado", HttpStatus.NOT_FOUND);

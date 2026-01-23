@@ -34,6 +34,12 @@ export class ProfessionalProfile {
   @Column({ type: "simple-array", name: "working_days", nullable: false })
   workingDays: number[];
 
+  @Column({ type: "varchar", name: "start_hour", nullable: false, default: "07:00" })
+  startHour: string;
+
+  @Column({ type: "varchar", name: "end_hour", nullable: false, default: "20:00" })
+  endHour: string;
+
   @CreateDateColumn({ name: "created_at" })
   createdAt: Date;
 

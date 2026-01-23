@@ -5,12 +5,14 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToOne,
   PrimaryGeneratedColumn,
   Unique,
   UpdateDateColumn,
 } from "typeorm";
 
 import { Business } from "@business/entities/business.entity";
+import { ProfessionalProfile } from "@professional-profile/entities/professional-profile.entity";
 import { Role } from "@roles/entities/role.entity";
 
 @Entity()
@@ -55,6 +57,9 @@ export class User {
   @ManyToOne(() => Business, (business) => business.users)
   @JoinColumn({ name: "business_id" })
   business: Business;
+
+  @OneToOne(() => ProfessionalProfile, (profile) => profile.user)
+  professionalProfile?: ProfessionalProfile;
 
   @Column({ type: "text", nullable: true })
   refreshToken: string;

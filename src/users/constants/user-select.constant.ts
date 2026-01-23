@@ -18,6 +18,8 @@ export const USER_PROFILE_SELECT = [
   "profile.professionalPrefix",
   "profile.specialty",
   "profile.workingDays",
+  "profile.startHour",
+  "profile.endHour",
   "profile.createdAt",
   "profile.updatedAt",
 ];

@@ -128,8 +128,8 @@ export class UsersService {
   async findAll(role: string, businessId: string): Promise<ApiResponse<User[]>> {
     const users = await this.userRepository
       .createQueryBuilder("user")
-      .leftJoin("user.role", "role")
-      .select(USER_SELECT)
+      .leftJoinAndSelect("user.role", "role")
+      .select([...USER_SELECT, ...USER_ROLE_SELECT])
       .where("user.businessId = :businessId", { businessId })
       .andWhere("role.value = :role", { role })
       .getMany();
@@ -139,53 +139,29 @@ export class UsersService {
   }
 
   async findAllSoftRemoved(role: string, businessId: string): Promise<ApiResponse<User[]>> {
-    const users = await this.userRepository.find({
-      select: [
-        "id",
-        "ic",
-        "userName",
-        "firstName",
-        "lastName",
-        "email",
-        "phoneNumber",
-        "role",
-        "roleId",
-        "createdAt",
-        "updatedAt",
-        "deletedAt",
-      ],
-      relations: ["role"],
-      where: {
-        businessId,
-        role: {
-          value: role,
-        },
-      },
-      withDeleted: true,
-    });
+    const users = await this.userRepository
+      .createQueryBuilder("user")
+      .leftJoinAndSelect("user.role", "role")
+      .select([...USER_SELECT, ...USER_ROLE_SELECT])
+      .where("user.businessId = :businessId", { businessId })
+      .andWhere("role.value = :role", { role })
+      .withDeleted()
+      .getMany();
     if (!users) throw new HttpException("Usuarios no encontrados", HttpStatus.NOT_FOUND);
 
     return ApiResponse.success<User[]>("Usuarios encontrados", users);
   }
 
-  // TODO: profile relation on all services. Choose props!
   async findOne(id: string, businessId: string): Promise<ApiResponse<User>> {
-    const user = await this.userRepository.findOne({
-      where: { businessId, id },
-      select: [
-        "id",
-        "ic",
-        "userName",
-        "firstName",
-        "lastName",
-        "email",
-        "phoneNumber",
-        "role",
-        "roleId",
-        "createdAt",
-        "updatedAt",
-      ],
-    });
+    const user = await this.userRepository
+      .createQueryBuilder("user")
+      .leftJoinAndSelect("user.role", "role")
+      .leftJoinAndSelect("user.professionalProfile", "profile")
+      .select([...USER_SELECT, ...USER_ROLE_SELECT, ...USER_PROFILE_SELECT])
+      .where("user.businessId = :businessId", { businessId })
+      .andWhere("user.id = :id", { id })
+      .withDeleted()
+      .getOne();
     if (!user) throw new HttpException("Usuario no encontrado", HttpStatus.NOT_FOUND);
 
     return ApiResponse.success<User>("Usuario encontrado", user);
@@ -216,23 +192,14 @@ export class UsersService {
   }
 
   async findOneWithToken(id: string, businessId: string): Promise<ApiResponse<User>> {
-    const user = await this.userRepository.findOne({
-      where: { businessId, id },
-      select: [
-        "id",
-        "ic",
-        "userName",
-        "firstName",
-        "lastName",
-        "email",
-        "phoneNumber",
-        "role",
-        "roleId",
-        "createdAt",
-        "updatedAt",
-        "refreshToken",
-      ],
-    });
+    const user = await this.userRepository
+      .createQueryBuilder("user")
+      .leftJoinAndSelect("user.role", "role")
+      .leftJoinAndSelect("user.professionalProfile", "profile")
+      .select([...USER_SELECT, "user.refreshToken"])
+      .where("user.businessId = :businessId", { businessId })
+      .andWhere("user.id = :id", { id })
+      .getOne();
     if (!user) throw new HttpException("Usuario no encontrado", HttpStatus.NOT_FOUND);
 
     return ApiResponse.success<User>("Usuario encontrado", user);
@@ -261,6 +228,8 @@ export class UsersService {
     return ApiResponse.removed<User>("Usuario eliminado", result);
   }
 
+  // TODO: REPLACE ALL FINDONE WITH THIS.FINDONEBY()
+  //
   async remove(id: string, businessId: string): Promise<ApiResponse<User>> {
     const userToRemove = await this.findOneById(id, businessId);
     if (!userToRemove) throw new HttpException("Usuario no encontrado", HttpStatus.NOT_FOUND);

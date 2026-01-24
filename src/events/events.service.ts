@@ -33,10 +33,11 @@ export class EventsService {
     return ApiResponse.created<Event>("Turno creado", saveEvent);
   }
 
-  async findAll(businessId: string): Promise<ApiResponse<Event[]>> {
+  async findAll(businessId: string, professionalId: string): Promise<ApiResponse<Event[]>> {
     const events = await this.eventRepository
       .createQueryBuilder("event")
       .where("event.businessId = :businessId", { businessId })
+      .andWhere("event.professionalId = :professionalId", { professionalId })
       .leftJoin("event.user", "user")
       .leftJoin("user.role", "userRole")
       .leftJoin("event.professional", "professional")

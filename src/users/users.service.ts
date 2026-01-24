@@ -129,9 +129,11 @@ export class UsersService {
     const users = await this.userRepository
       .createQueryBuilder("user")
       .leftJoinAndSelect("user.role", "role")
-      .select([...USER_SELECT, ...USER_ROLE_SELECT])
+      .leftJoinAndSelect("user.professionalProfile", "profile")
+      .select([...USER_SELECT, ...USER_ROLE_SELECT, "profile.professionalPrefix"])
       .where("user.businessId = :businessId", { businessId })
       .andWhere("role.value = :role", { role })
+      .orderBy("user.firstName", "ASC")
       .getMany();
     if (!users) throw new HttpException("Usuarios no encontrados", HttpStatus.NOT_FOUND);
 

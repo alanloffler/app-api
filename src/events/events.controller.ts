@@ -20,9 +20,12 @@ export class EventsController {
   }
 
   @RequiredPermissions("events-view")
-  @Get()
-  findAll(@BusinessId(ParseUUIDPipe) businessId: string) {
-    return this.eventsService.findAll(businessId);
+  @Get("professional/:professionalId")
+  findAll(
+    @BusinessId(ParseUUIDPipe) businessId: string,
+    @Param("professionalId", ParseUUIDPipe) professionalId: string,
+  ) {
+    return this.eventsService.findAll(businessId, professionalId);
   }
 
   @RequiredPermissions("events-view")

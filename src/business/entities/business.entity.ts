@@ -3,6 +3,7 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  Index,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -11,6 +12,8 @@ import {
 import { User } from "@users/entities/user.entity";
 
 @Entity()
+@Index("idx_business_slug", ["slug"], { unique: true })
+@Index("idx_business_tax_id", ["taxId"], { unique: true })
 export class Business {
   @PrimaryGeneratedColumn("uuid")
   id: string;

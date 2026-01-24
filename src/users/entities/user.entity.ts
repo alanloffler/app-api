@@ -3,6 +3,7 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   OneToOne,
@@ -19,6 +20,9 @@ import { Role } from "@roles/entities/role.entity";
 @Unique(["businessId", "email"])
 @Unique(["businessId", "ic"])
 @Unique(["businessId", "userName"])
+@Index("idx_users_business", ["businessId"])
+@Index("idx_users_business_email", ["businessId", "email"])
+@Index("idx_users_business_role", ["businessId", "roleId"])
 export class User {
   @PrimaryGeneratedColumn("uuid")
   id: string;

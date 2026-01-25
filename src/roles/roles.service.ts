@@ -102,17 +102,6 @@ export class RolesService {
     const role = await this.roleRepository.findOne({
       where: { id },
       relations: ["admins", "users", "rolePermissions", "rolePermissions.permission"],
-      select: {
-        id: true,
-        name: true,
-        value: true,
-        description: true,
-        createdAt: true,
-        deletedAt: true,
-        admins: true,
-        users: true,
-        rolePermissions: true,
-      },
     });
     if (!role) throw new HttpException("Rol no encontrado", HttpStatus.NOT_FOUND);
 
@@ -123,17 +112,6 @@ export class RolesService {
     const role = await this.roleRepository.findOne({
       where: { id },
       relations: ["admins", "users", "rolePermissions", "rolePermissions.permission"],
-      select: {
-        id: true,
-        name: true,
-        value: true,
-        description: true,
-        createdAt: true,
-        deletedAt: true,
-        admins: true,
-        users: true,
-        rolePermissions: true,
-      },
       withDeleted: true,
     });
     if (!role) throw new HttpException("Rol no encontrado", HttpStatus.NOT_FOUND);

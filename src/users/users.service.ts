@@ -266,13 +266,25 @@ export class UsersService {
     return user;
   }
 
-  // TODO: Implement validations
+  // Used in auth.service, there is managed error
   public async getUser(id: string, businessId: string): Promise<User | null> {
-    const user = await this.userRepository.findOne({
-      where: { businessId, id },
-      select: ["id", "ic", "email", "userName", "firstName", "lastName", "role", "createdAt"],
-      relations: ["role"],
-    });
+    const user = await this.userRepository
+      .createQueryBuilder("user")
+      .leftJoin("user.role", "role")
+      .leftJoin("role.rolePermissions", "rolePermissions")
+      .leftJoin("rolePermissions.permission", "permission")
+      .addSelect([
+        "role.id",
+        "role.name",
+        "role.value",
+        "rolePermissions.roleId",
+        "rolePermissions.permissionId",
+        "permission.id",
+        "permission.actionKey",
+      ])
+      .where("user.businessId = :businessId", { businessId })
+      .andWhere("user.id = :id", { id })
+      .getOne();
 
     return user;
   }

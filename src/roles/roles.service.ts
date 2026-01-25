@@ -182,7 +182,7 @@ export class RolesService {
   async remove(id: string): Promise<ApiResponse<Role>> {
     const role = await this.roleRepository.findOne({
       where: { id },
-      relations: ["user"],
+      relations: ["users"],
     });
     if (role && role.users.length > 0) {
       throw new HttpException(

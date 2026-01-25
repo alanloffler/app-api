@@ -3,6 +3,7 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  Index,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -11,6 +12,7 @@ import {
 import { RolePermission } from "@roles/entities/role-permission.entity";
 
 @Entity()
+@Index("idx_permission_action_key", ["actionKey"], { unique: true })
 export class Permission {
   @PrimaryGeneratedColumn("uuid")
   id: string;

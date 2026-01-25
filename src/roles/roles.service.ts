@@ -101,7 +101,7 @@ export class RolesService {
   async findOne(id: string): Promise<ApiResponse<Role>> {
     const role = await this.roleRepository.findOne({
       where: { id },
-      relations: ["admins", "users"],
+      relations: ["admins", "users", "rolePermissions", "rolePermissions.permission"],
       select: {
         id: true,
         name: true,
@@ -111,6 +111,7 @@ export class RolesService {
         deletedAt: true,
         admins: true,
         users: true,
+        rolePermissions: true,
       },
     });
     if (!role) throw new HttpException("Rol no encontrado", HttpStatus.NOT_FOUND);
@@ -121,7 +122,7 @@ export class RolesService {
   async findOneSoftRemoved(id: string): Promise<ApiResponse<Role>> {
     const role = await this.roleRepository.findOne({
       where: { id },
-      relations: ["admins", "users"],
+      relations: ["admins", "users", "rolePermissions", "rolePermissions.permission"],
       select: {
         id: true,
         name: true,
@@ -131,6 +132,7 @@ export class RolesService {
         deletedAt: true,
         admins: true,
         users: true,
+        rolePermissions: true,
       },
       withDeleted: true,
     });

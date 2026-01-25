@@ -310,6 +310,6 @@ export class UsersService {
   }
 
   public async clearRefreshToken(id: string): Promise<void> {
-    await this.userRepository.update(id, { refreshToken: undefined });
+    await this.userRepository.update(id, { refreshToken: null });
   }
 }

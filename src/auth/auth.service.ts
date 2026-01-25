@@ -1,4 +1,3 @@
-import * as bcrypt from "bcrypt";
 import type { Response } from "express";
 import { ConfigService } from "@nestjs/config";
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
@@ -7,7 +6,6 @@ import { JwtService } from "@nestjs/jwt";
 import type { IPayload } from "@auth/interfaces/payload.interface";
 import type { IRequest } from "@auth/interfaces/request.interface";
 import type { IToken } from "@auth/interfaces/token.interface";
-import { AdminService } from "@admin/admin.service";
 import { ApiResponse } from "@common/helpers/api-response.helper";
 import { EAuthType } from "@auth/enums/auth-type.enum";
 import { UsersService } from "@users/users.service";
@@ -15,7 +13,6 @@ import { UsersService } from "@users/users.service";
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly adminService: AdminService,
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
     private readonly usersService: UsersService,
@@ -57,16 +54,16 @@ export class AuthService {
   // };
   // }
 
-  async validatePassword(email: string, password: string): Promise<boolean> {
-    const user = await this.adminService.findOneByEmail(email);
-
-    if (!user) throw new HttpException("Usuario incorrecto", HttpStatus.BAD_REQUEST);
-
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) throw new HttpException("Contraseña incorrecta", HttpStatus.UNAUTHORIZED);
-
-    return true;
-  }
+  // async validatePassword(email: string, password: string): Promise<boolean> {
+  //   const user = await this.adminService.findOneByEmail(email);
+  //
+  //   if (!user) throw new HttpException("Usuario incorrecto", HttpStatus.BAD_REQUEST);
+  //
+  //   const isPasswordValid = await bcrypt.compare(password, user.password);
+  //   if (!isPasswordValid) throw new HttpException("Contraseña incorrecta", HttpStatus.UNAUTHORIZED);
+  //
+  //   return true;
+  // }
 
   async getTokens(payload: IPayload, includeRefresh: boolean = true): Promise<IToken> {
     const sanitizedPayload: IPayload = { ...payload };
@@ -95,12 +92,6 @@ export class AuthService {
   }
 
   async updateRefreshToken(id: string, refreshToken: string, type: string, businessId: string): Promise<void> {
-    if (type === EAuthType.ADMIN) {
-      const updateToken = await this.adminService.update(id, { refreshToken });
-      if (!updateToken) throw new HttpException("Error al actualizar token", HttpStatus.BAD_REQUEST);
-      return;
-    }
-
     if (type === EAuthType.USER) {
       if (!businessId) throw new HttpException("BusinessId requerido", HttpStatus.BAD_REQUEST);
 
@@ -114,9 +105,7 @@ export class AuthService {
   }
 
   async signOut(payload: IPayload, res: Response): Promise<ApiResponse<null>> {
-    if (payload.type === EAuthType.ADMIN) {
-      await this.adminService.update(payload.id, { refreshToken: undefined });
-    } else if (payload.type === EAuthType.USER) {
+    if (payload.type === EAuthType.USER) {
       await this.usersService.clearRefreshToken(payload.id);
     }
 
@@ -129,10 +118,7 @@ export class AuthService {
     const type = payload.type;
     let storedRefreshToken: string | null | undefined;
 
-    if (type === EAuthType.ADMIN) {
-      const admin = await this.adminService.findOneWithToken(payload.id);
-      storedRefreshToken = admin.data?.refreshToken;
-    } else if (type === EAuthType.USER) {
+    if (type === EAuthType.USER) {
       const user = await this.usersService.findOneWithToken(payload.id, payload.businessId);
       storedRefreshToken = user.data?.refreshToken;
     } else {
@@ -166,13 +152,6 @@ export class AuthService {
   async getMe(payload: IPayload) {
     const type = payload.type;
 
-    if (type === EAuthType.ADMIN) {
-      const admin = await this.adminService.getAdmin(payload.id);
-      if (!admin) throw new HttpException("Administrador no encontrado", HttpStatus.NOT_FOUND);
-
-      return ApiResponse.success("Administrador encontrado", admin);
-    }
-
     if (type === EAuthType.USER) {
       const user = await this.usersService.getUser(payload.id, payload.businessId);
       if (!user) throw new HttpException("Usuario no encontrado", HttpStatus.NOT_FOUND);
@@ -181,13 +160,6 @@ export class AuthService {
     }
 
     throw new HttpException("Tipo de usuario inválido", HttpStatus.BAD_REQUEST);
-  }
-
-  async getAdmin(payload: IPayload) {
-    const admin = await this.adminService.getAdmin(payload.id);
-    if (!admin) throw new HttpException("Administrador no encontrado", HttpStatus.NOT_FOUND);
-
-    return ApiResponse.success("Administrador encontrado", admin);
   }
 
   private setTokenCookie(res: Response, tokens: IToken): void {

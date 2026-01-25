@@ -5,7 +5,6 @@ import { Module } from "@nestjs/common";
 import { PassportModule } from "@nestjs/passport";
 import { TypeOrmModule } from "@nestjs/typeorm";
 
-import { AdminModule } from "@admin/admin.module";
 import { AuthController } from "@auth/auth.controller";
 import { AuthService } from "@auth/auth.service";
 import { BusinessModule } from "@business/business.module";
@@ -18,7 +17,6 @@ import { UsersModule } from "@users/users.module";
 
 @Module({
   imports: [
-    AdminModule,
     CacheModule.register({
       ttl: 0,
       max: 1000,

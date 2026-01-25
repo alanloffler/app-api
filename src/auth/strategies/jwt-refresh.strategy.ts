@@ -5,7 +5,6 @@ import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { PassportStrategy } from "@nestjs/passport";
 
 import type { IPayload } from "@auth/interfaces/payload.interface";
-import { EAuthType } from "@auth/enums/auth-type.enum";
 import { UsersService } from "@users/users.service";
 
 @Injectable()
@@ -37,13 +36,10 @@ export class JwtRefreshStrategy extends PassportStrategy(Strategy, "jwt-refresh"
       const refreshToken = req.cookies?.refreshToken;
       if (!refreshToken) throw new HttpException("Token de refresco no encontrado", HttpStatus.UNAUTHORIZED);
 
-      const type = payload.type;
       let storedRefreshToken: string | null | undefined;
 
-      if (type === EAuthType.USER) {
-        const user = await this.usersService.findOneWithToken(payload.id, payload.businessId);
-        storedRefreshToken = user.data?.refreshToken;
-      }
+      const user = await this.usersService.findOneWithToken(payload.id, payload.businessId);
+      storedRefreshToken = user.data?.refreshToken;
       if (storedRefreshToken !== refreshToken)
         throw new HttpException("Token de refresco no válido", HttpStatus.UNAUTHORIZED);
 

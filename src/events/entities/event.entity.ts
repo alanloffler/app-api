@@ -14,8 +14,8 @@ import { User } from "@users/entities/user.entity";
 
 @Entity("events")
 @Index("idx_events_business_start", ["businessId", "startDate"])
-@Index("idx_events_professional_start", ["businessId", "professionalId", "startDate"])
-@Index("idx_events_user_start", ["businessId", "userId", "startDate"])
+@Index("idx_events_business_professional_start", ["businessId", "professionalId", "startDate"])
+@Index("idx_events_business_user_start", ["businessId", "userId", "startDate"])
 export class Event {
   @PrimaryGeneratedColumn("uuid")
   id: string;

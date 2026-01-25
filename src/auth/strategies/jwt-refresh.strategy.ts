@@ -5,7 +5,6 @@ import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { PassportStrategy } from "@nestjs/passport";
 
 import type { IPayload } from "@auth/interfaces/payload.interface";
-import { AdminService } from "@admin/admin.service";
 import { EAuthType } from "@auth/enums/auth-type.enum";
 import { UsersService } from "@users/users.service";
 
@@ -13,7 +12,6 @@ import { UsersService } from "@users/users.service";
 export class JwtRefreshStrategy extends PassportStrategy(Strategy, "jwt-refresh") {
   constructor(
     configService: ConfigService,
-    private readonly adminService: AdminService,
     private readonly usersService: UsersService,
   ) {
     const secret = configService.get<string>("JWT_REFRESH_SECRET");
@@ -42,17 +40,10 @@ export class JwtRefreshStrategy extends PassportStrategy(Strategy, "jwt-refresh"
       const type = payload.type;
       let storedRefreshToken: string | null | undefined;
 
-      if (type === EAuthType.ADMIN) {
-        const admin = await this.adminService.findOneWithToken(payload.id);
-        storedRefreshToken = admin.data?.refreshToken;
-      } else if (type === EAuthType.USER) {
+      if (type === EAuthType.USER) {
         const user = await this.usersService.findOneWithToken(payload.id, payload.businessId);
         storedRefreshToken = user.data?.refreshToken;
-      } else {
-        const admin = await this.adminService.findOneWithToken(payload.id);
-        storedRefreshToken = admin.data?.refreshToken;
       }
-
       if (storedRefreshToken !== refreshToken)
         throw new HttpException("Token de refresco no válido", HttpStatus.UNAUTHORIZED);
 

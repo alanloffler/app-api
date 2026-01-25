@@ -127,7 +127,7 @@ export class AuthService {
 
   async refreshToken(payload: IPayload, refreshToken: string, res: Response) {
     const type = payload.type;
-    let storedRefreshToken: string | undefined;
+    let storedRefreshToken: string | null | undefined;
 
     if (type === EAuthType.ADMIN) {
       const admin = await this.adminService.findOneWithToken(payload.id);

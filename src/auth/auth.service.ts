@@ -7,7 +7,6 @@ import type { IPayload } from "@auth/interfaces/payload.interface";
 import type { IRequest } from "@auth/interfaces/request.interface";
 import type { IToken } from "@auth/interfaces/token.interface";
 import { ApiResponse } from "@common/helpers/api-response.helper";
-import { EAuthType } from "@auth/enums/auth-type.enum";
 import { UsersService } from "@users/users.service";
 
 @Injectable()
@@ -19,20 +18,17 @@ export class AuthService {
   ) {}
 
   async signIn(req: IRequest, res: Response): Promise<ApiResponse<null>> {
-    const authType = req.body.type;
-
     const payload = {
       businessId: req.user.businessId,
       id: req.user.id,
       email: req.user.email,
       role: req.user.role,
       roleId: req.user.roleId,
-      type: authType,
     };
 
     const tokens = await this.getTokens(payload, true);
 
-    await this.updateRefreshToken(payload.id, tokens.refreshToken!, authType, payload.businessId);
+    await this.updateRefreshToken(payload.id, tokens.refreshToken!, payload.businessId);
 
     this.setTokenCookie(res, tokens);
 
@@ -91,40 +87,23 @@ export class AuthService {
     }
   }
 
-  async updateRefreshToken(id: string, refreshToken: string, type: string, businessId: string): Promise<void> {
-    if (type === EAuthType.USER) {
-      if (!businessId) throw new HttpException("BusinessId requerido", HttpStatus.BAD_REQUEST);
+  async updateRefreshToken(id: string, refreshToken: string, businessId: string): Promise<void> {
+    if (!businessId) throw new HttpException("BusinessId requerido", HttpStatus.BAD_REQUEST);
 
-      const updateToken = await this.usersService.update(id, { refreshToken }, businessId);
-      if (!updateToken) throw new HttpException("Error al actualizar token", HttpStatus.BAD_REQUEST);
-
-      return;
-    }
-
-    throw new HttpException("Tipo de usuario inválido", HttpStatus.BAD_REQUEST);
+    const updateToken = await this.usersService.update(id, { refreshToken }, businessId);
+    if (!updateToken) throw new HttpException("Error al actualizar token", HttpStatus.BAD_REQUEST);
   }
 
   async signOut(payload: IPayload, res: Response): Promise<ApiResponse<null>> {
-    if (payload.type === EAuthType.USER) {
-      await this.usersService.clearRefreshToken(payload.id);
-    }
-
+    await this.usersService.clearRefreshToken(payload.id);
     this.clearTokenCookie(res);
 
     return ApiResponse.success<null>("Deslogueo exitoso", null);
   }
 
   async refreshToken(payload: IPayload, refreshToken: string, res: Response) {
-    const type = payload.type;
-    let storedRefreshToken: string | null | undefined;
-
-    if (type === EAuthType.USER) {
-      const user = await this.usersService.findOneWithToken(payload.id, payload.businessId);
-      storedRefreshToken = user.data?.refreshToken;
-    } else {
-      throw new HttpException("Tipo de usuario inválido", HttpStatus.BAD_REQUEST);
-    }
-
+    const user = await this.usersService.findOneWithToken(payload.id, payload.businessId);
+    let storedRefreshToken = user?.data?.refreshToken;
     if (!storedRefreshToken) throw new HttpException("Token de actualización no existe", HttpStatus.BAD_REQUEST);
 
     if (storedRefreshToken !== refreshToken)
@@ -135,7 +114,7 @@ export class AuthService {
     const tokens = await this.getTokens(payload, shouldRotate);
 
     if (shouldRotate) {
-      await this.updateRefreshToken(payload.id, tokens.refreshToken!, type, payload.businessId);
+      await this.updateRefreshToken(payload.id, tokens.refreshToken!, payload.businessId);
     }
 
     this.setTokenCookie(res, {
@@ -150,21 +129,14 @@ export class AuthService {
   }
 
   async getMe(payload: IPayload) {
-    const type = payload.type;
+    const user = await this.usersService.getUser(payload.id, payload.businessId);
+    if (!user) throw new HttpException("Usuario no encontrado", HttpStatus.NOT_FOUND);
 
-    if (type === EAuthType.USER) {
-      const user = await this.usersService.getUser(payload.id, payload.businessId);
-      if (!user) throw new HttpException("Usuario no encontrado", HttpStatus.NOT_FOUND);
-
-      return ApiResponse.success("Usuario encontrado", user);
-    }
-
-    throw new HttpException("Tipo de usuario inválido", HttpStatus.BAD_REQUEST);
+    return ApiResponse.success("Usuario encontrado", user);
   }
 
   private setTokenCookie(res: Response, tokens: IToken): void {
-    const isProduction = this.configService.get("NODE_ENV") === "production";
-
+    // const isProduction = this.configService.get("NODE_ENV") === "production";
     // const cookieOptions = {
     //   domain: isProduction ? `${this.configService.get("APP_DOMAIN")}` : ".lvh.me",
     //   httpOnly: true,
@@ -172,6 +144,7 @@ export class AuthService {
     //   sameSite: isProduction ? ("none" as const) : ("lax" as const),
     //   secure: isProduction,
     // };
+
     const cookieOptions = {
       httpOnly: true,
       path: "/",
@@ -191,8 +164,7 @@ export class AuthService {
   }
 
   private clearTokenCookie(res: Response): void {
-    const isProduction = this.configService.get("NODE_ENV") === "production";
-
+    // const isProduction = this.configService.get("NODE_ENV") === "production";
     // const cookieOptions = {
     //   domain: isProduction ? `${this.configService.get("APP_DOMAIN")}` : ".lvh.me",
     //   httpOnly: true,
@@ -201,6 +173,7 @@ export class AuthService {
     //   sameSite: isProduction ? ("none" as const) : ("lax" as const),
     //   secure: isProduction,
     // };
+
     const cookieOptions = {
       httpOnly: true,
       path: "/",

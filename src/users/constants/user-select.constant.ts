@@ -1,4 +1,5 @@
 export const USER_SELECT = [
+  "user.businessId",
   "user.id",
   "user.ic",
   "user.userName",

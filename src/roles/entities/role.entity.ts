@@ -3,6 +3,7 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  Index,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -13,6 +14,7 @@ import { RolePermission } from "@roles/entities/role-permission.entity";
 import { User } from "@users/entities/user.entity";
 
 @Entity()
+@Index("idx_role_value", ["value"], { unique: true })
 export class Role {
   @PrimaryGeneratedColumn("uuid")
   id: string;
@@ -32,7 +34,7 @@ export class Role {
   @OneToMany(() => User, (user) => user.role)
   users: User[];
 
-  @OneToMany(() => RolePermission, (rp) => rp.role, { cascade: false, eager: true })
+  @OneToMany(() => RolePermission, (rp) => rp.role, { cascade: false })
   rolePermissions: RolePermission[];
 
   @CreateDateColumn({ name: "created_at" })

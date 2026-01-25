@@ -40,7 +40,7 @@ export class JwtRefreshStrategy extends PassportStrategy(Strategy, "jwt-refresh"
       if (!refreshToken) throw new HttpException("Token de refresco no encontrado", HttpStatus.UNAUTHORIZED);
 
       const type = payload.type;
-      let storedRefreshToken: string | undefined;
+      let storedRefreshToken: string | null | undefined;
 
       if (type === EAuthType.ADMIN) {
         const admin = await this.adminService.findOneWithToken(payload.id);

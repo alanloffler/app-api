@@ -1,12 +1,4 @@
-import {
-  CreateDateColumn,
-  DeleteDateColumn,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  PrimaryColumn,
-  UpdateDateColumn,
-} from "typeorm";
+import { CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryColumn, UpdateDateColumn } from "typeorm";
 
 import { Permission } from "@permissions/entities/permission.entity";
 import { Role } from "@roles/entities/role.entity";
@@ -24,9 +16,6 @@ export class RolePermission {
 
   @UpdateDateColumn({ name: "updated_at" })
   updatedAt: Date;
-
-  @DeleteDateColumn({ name: "deleted_at" })
-  deletedAt?: Date;
 
   @ManyToOne(() => Role, (role) => role.rolePermissions, {
     onDelete: "CASCADE",

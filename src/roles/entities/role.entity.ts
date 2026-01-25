@@ -9,7 +9,6 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 
-import { Admin } from "@admin/entities/admin.entity";
 import { RolePermission } from "@roles/entities/role-permission.entity";
 import { User } from "@users/entities/user.entity";
 
@@ -27,9 +26,6 @@ export class Role {
 
   @Column({ type: "varchar", length: 100, nullable: false })
   description: string;
-
-  @OneToMany(() => Admin, (admin) => admin.role)
-  admins: Admin[];
 
   @OneToMany(() => User, (user) => user.role)
   users: User[];

@@ -18,10 +18,10 @@ export class Business {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  @Column({ type: "varchar", length: 50, nullable: false, unique: true })
+  @Column({ type: "varchar", length: 50, nullable: false })
   slug: string;
 
-  @Column({ type: "varchar", length: 11, name: "tax_id", nullable: false, unique: true })
+  @Column({ type: "varchar", length: 11, name: "tax_id", nullable: false })
   taxId: string;
 
   @Column({ type: "varchar", length: 100, name: "company_name", nullable: false })

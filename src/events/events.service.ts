@@ -42,6 +42,7 @@ export class EventsService {
       .leftJoin("user.role", "userRole")
       .leftJoin("event.professional", "professional")
       .leftJoin("professional.role", "profRole")
+      .leftJoin("professional.professionalProfile", "professionalProfile")
       .select([
         "event",
         "profRole.name",
@@ -50,6 +51,7 @@ export class EventsService {
         "professional.ic",
         "professional.id",
         "professional.lastName",
+        "professionalProfile.professionalPrefix",
         "user.email",
         "user.firstName",
         "user.ic",

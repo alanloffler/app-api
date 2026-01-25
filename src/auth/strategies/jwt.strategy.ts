@@ -5,8 +5,6 @@ import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { PassportStrategy } from "@nestjs/passport";
 
 import type { IPayload } from "@auth/interfaces/payload.interface";
-import { ApiResponse } from "@common/helpers/api-response.helper";
-import { EAuthType } from "@auth/enums/auth-type.enum";
 import { User } from "@users/entities/user.entity";
 import { UsersService } from "@users/users.service";
 
@@ -32,14 +30,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: IPayload) {
-    let user: ApiResponse<User> | null = null;
-
-    if (payload.type === EAuthType.USER) {
-      user = await this.usersService.findOne(payload.id, payload.businessId);
-      if (!user) throw new HttpException("Usuario no encontrado", HttpStatus.UNAUTHORIZED);
-    } else {
-      throw new HttpException("Tipo de usuario inválido", HttpStatus.UNAUTHORIZED);
-    }
+    const user = await this.usersService.findOne(payload.id, payload.businessId);
+    if (!user) throw new HttpException("Usuario no encontrado", HttpStatus.UNAUTHORIZED);
 
     return {
       businessId: (user.data as User)?.businessId,

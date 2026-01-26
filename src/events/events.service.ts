@@ -107,6 +107,31 @@ export class EventsService {
     return ApiResponse.success<Event[]>("Turnos encontrados", events);
   }
 
+  async findAllByDateArray(businessId: string, professionalId: string, date: string): Promise<ApiResponse<string[]>> {
+    // TODO: get timezone from param if business is not from ARGENTINA
+    const TIME_ZONE = "-03";
+    const events = await this.eventRepository
+      .createQueryBuilder("event")
+      .where("event.businessId = :businessId", { businessId })
+      .andWhere("event.professionalId = :professionalId", { professionalId })
+      .andWhere("event.startDate >= :startOfDay AND event.startDate <= :endOfDay", {
+        startOfDay: `${date} 00:00:00${TIME_ZONE}`,
+        endOfDay: `${date} 23:59:59${TIME_ZONE}`,
+      })
+      .select(["event.startDate"])
+      .getMany();
+    if (!events) throw new HttpException("Error al obtener los turnos", HttpStatus.NOT_FOUND);
+
+    const dates = events.map((event) => {
+      const date = new Date(event.startDate);
+      const hours = date.getHours().toString().padStart(2, "0");
+      const minutes = date.getMinutes().toString().padStart(2, "0");
+      return `${hours}:${minutes}`;
+    });
+
+    return ApiResponse.success<string[]>(`Turnos encontrados para ${date}`, dates);
+  }
+
   async findOne(id: string, businessId: string): Promise<ApiResponse<Event>> {
     const event = await this.findOneById(id, businessId);
     if (!event) throw new HttpException("Turno no encontrado", HttpStatus.NOT_FOUND);

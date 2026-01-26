@@ -39,6 +39,16 @@ export class EventsController {
   }
 
   @RequiredPermissions("events-view")
+  @Get("professional/:professionalId/date-array/:date")
+  findAllByDateArray(
+    @BusinessId() businessId: string,
+    @Param("professionalId", ParseUUIDPipe) professionalId: string,
+    @Param("date") date: string,
+  ) {
+    return this.eventsService.findAllByDateArray(businessId, professionalId, date);
+  }
+
+  @RequiredPermissions("events-view")
   @Get(":id")
   findOne(@Param("id", ParseUUIDPipe) id: string, @BusinessId(ParseUUIDPipe) businessId: string) {
     return this.eventsService.findOne(id, businessId);

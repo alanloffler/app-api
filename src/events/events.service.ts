@@ -67,6 +67,46 @@ export class EventsService {
     return ApiResponse.success<Event[]>("Turnos encontrados", events);
   }
 
+  async findAllByDate(businessId: string, professionalId: string, date: string): Promise<ApiResponse<Event[]>> {
+    // TODO: get timezone from param if business is not from ARGENTINA
+    const TIME_ZONE = "-03";
+    const events = await this.eventRepository
+      .createQueryBuilder("event")
+      .where("event.businessId = :businessId", { businessId })
+      .andWhere("event.professionalId = :professionalId", { professionalId })
+      .andWhere("event.startDate >= :startOfDay AND event.startDate <= :endOfDay", {
+        startOfDay: `${date} 00:00:00${TIME_ZONE}`,
+        endOfDay: `${date} 23:59:59${TIME_ZONE}`,
+      })
+      .leftJoin("event.user", "user")
+      .leftJoin("user.role", "userRole")
+      .leftJoin("event.professional", "professional")
+      .leftJoin("professional.role", "profRole")
+      .leftJoin("professional.professionalProfile", "professionalProfile")
+      .select([
+        "event",
+        "profRole.name",
+        "profRole.value",
+        "professional.firstName",
+        "professional.ic",
+        "professional.id",
+        "professional.lastName",
+        "professionalProfile.professionalPrefix",
+        "user.email",
+        "user.firstName",
+        "user.ic",
+        "user.id",
+        "user.lastName",
+        "user.phoneNumber",
+        "userRole.name",
+        "userRole.value",
+      ])
+      .getMany();
+    if (!events) throw new HttpException("Error al obtener los turnos", HttpStatus.NOT_FOUND);
+
+    return ApiResponse.success<Event[]>("Turnos encontrados", events);
+  }
+
   async findOne(id: string, businessId: string): Promise<ApiResponse<Event>> {
     const event = await this.findOneById(id, businessId);
     if (!event) throw new HttpException("Turno no encontrado", HttpStatus.NOT_FOUND);

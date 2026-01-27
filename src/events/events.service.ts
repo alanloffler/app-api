@@ -122,12 +122,13 @@ export class EventsService {
       .getMany();
     if (!events) throw new HttpException("Error al obtener los turnos", HttpStatus.NOT_FOUND);
 
-    const dates = events.map((event) => {
-      const date = new Date(event.startDate);
-      const hours = date.getHours().toString().padStart(2, "0");
-      const minutes = date.getMinutes().toString().padStart(2, "0");
-      return `${hours}:${minutes}`;
-    });
+    const dates = events
+      .map((event) => {
+        const utcTime = event.startDate.getTime();
+        const localTime = new Date(utcTime + parseInt(TIME_ZONE, 10) * 60 * 60 * 1000);
+        return localTime.toISOString().substring(11, 16);
+      })
+      .sort((a, b) => a.localeCompare(b));
 
     return ApiResponse.success<string[]>(`Turnos encontrados para ${date}`, dates);
   }

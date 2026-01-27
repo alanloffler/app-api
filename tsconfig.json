@@ -28,6 +28,7 @@
       "@common/*": ["./src/common/*"],
       "@config/*": ["./src/config/*"],
       "@events/*": ["./src/events/*"],
+      "@medical-history/*": ["./src/medical-history/*"],
       "@notifications/*": ["src/notifications/*"],
       "@permissions/*": ["./src/permissions/*"],
       "@professional-profile/*": ["./src/professional-profile/*"],

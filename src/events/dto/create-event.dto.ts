@@ -21,7 +21,7 @@ export class CreateEventDto {
   @IsNotEmpty({ message: "El profesional es obligatorio" })
   professionalId: string;
 
-  @IsUUID(4, { message: "El id del usuario debe ser un UUID" })
-  @IsNotEmpty({ message: "El usuario es obligatorio" })
+  @IsUUID(4, { message: "El id del paciente debe ser un UUID" })
+  @IsNotEmpty({ message: "El paciente es obligatorio" })
   userId: string;
 }

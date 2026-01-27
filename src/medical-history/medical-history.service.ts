@@ -32,8 +32,13 @@ export class MedicalHistoryService {
     return `This action returns all medicalHistory`;
   }
 
-  findOne(id: string) {
-    return `This action returns a #${id} medicalHistory`;
+  async findOne(businessId: string, id: string): Promise<ApiResponse<MedicalHistory>> {
+    // TODO: check businessId???
+    // TODO: user & event relation if needed
+    const history = await this.medicalHistoryRepository.findOne({ where: { id, businessId } });
+    if (!history) throw new HttpException("Historial no encontrado", HttpStatus.NOT_FOUND);
+
+    return ApiResponse.success<MedicalHistory>("Historial encontrado", history);
   }
 
   update(id: string, updateMedicalHistoryDto: UpdateMedicalHistoryDto) {

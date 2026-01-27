@@ -16,8 +16,8 @@ export class MedicalHistoryController {
   }
 
   @Get()
-  findAll() {
-    return this.medicalHistoryService.findAll();
+  findAll(@BusinessId(ParseUUIDPipe) businessId: string) {
+    return this.medicalHistoryService.findAll(businessId);
   }
 
   @Get(":id")

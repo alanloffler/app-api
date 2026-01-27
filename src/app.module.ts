@@ -6,6 +6,7 @@ import { AuthModule } from "@auth/auth.module";
 import { BusinessModule } from "@business/business.module";
 import { CacheConfigModule } from "@config/cache-config.module";
 import { EventsModule } from "@events/events.module";
+import { MedicalHistoryModule } from "@medical-history/medical-history.module";
 import { NotificationsModule } from "@notifications/notifications.module";
 import { PermissionsModule } from "@permissions/permissions.module";
 import { ProfessionalProfileModule } from "@professional-profile/professional-profile.module";
@@ -28,6 +29,7 @@ import { typeOrmConfig } from "@config/typeorm.config";
     AuthModule,
     BusinessModule,
     EventsModule,
+    MedicalHistoryModule,
     NotificationsModule,
     PermissionsModule,
     ProfessionalProfileModule,

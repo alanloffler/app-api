@@ -28,8 +28,14 @@ export class MedicalHistoryService {
     return ApiResponse.created<MedicalHistory>("Historial creado", history);
   }
 
-  findAll() {
-    return `This action returns all medicalHistory`;
+  // Find all medical histories for business
+  async findAll(businessId: string): Promise<ApiResponse<MedicalHistory[]>> {
+    // TODO: check businessId???
+    // TODO: user & event relation if needed
+    const histories = await this.medicalHistoryRepository.find({ where: { businessId } });
+    if (!histories) throw new HttpException("Error al obtener los historiales", HttpStatus.NOT_FOUND);
+
+    return ApiResponse.success<MedicalHistory[]>("Historiales encontrados", histories);
   }
 
   async findOne(businessId: string, id: string): Promise<ApiResponse<MedicalHistory>> {

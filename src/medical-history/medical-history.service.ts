@@ -13,11 +13,15 @@ export class MedicalHistoryService {
     @InjectRepository(MedicalHistory) private readonly medicalHistoryRepository: Repository<MedicalHistory>,
   ) {}
 
-  async create(createMedicalHistoryDto: CreateMedicalHistoryDto): Promise<ApiResponse<MedicalHistory>> {
+  async create(
+    businessId: string,
+    createMedicalHistoryDto: CreateMedicalHistoryDto,
+  ): Promise<ApiResponse<MedicalHistory>> {
     // TODO:
     // 1. Check userId existence
     // 2. Check eventId existence
-    const history = this.medicalHistoryRepository.create(createMedicalHistoryDto);
+    const createDto = { ...createMedicalHistoryDto, businessId };
+    const history = this.medicalHistoryRepository.create(createDto);
     const saveHistory = await this.medicalHistoryRepository.save(history);
     if (!saveHistory) throw new HttpException("Error al crear el historial", HttpStatus.BAD_REQUEST);
 

@@ -21,8 +21,8 @@ export class MedicalHistoryController {
   }
 
   @Get(":id")
-  findOne(@Param("id") id: string) {
-    return this.medicalHistoryService.findOne(id);
+  findOne(@BusinessId(ParseUUIDPipe) businessId: string, @Param("id") id: string) {
+    return this.medicalHistoryService.findOne(businessId, id);
   }
 
   @Patch(":id")

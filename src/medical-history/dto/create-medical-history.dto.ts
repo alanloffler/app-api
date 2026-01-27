@@ -1,1 +1,21 @@
-export class CreateMedicalHistoryDto {}
+import { IsBoolean, IsNotEmpty, IsOptional, IsString, IsUUID, Length } from "class-validator";
+import { Transform } from "class-transformer";
+
+export class CreateMedicalHistoryDto {
+  @IsUUID(4, { message: "El id del paciente debe ser un UUID" })
+  @IsNotEmpty({ message: "El id del paciente es obligatorio" })
+  userId: string;
+
+  @IsUUID(4, { message: "El id del turno debe ser un UUID" })
+  @IsOptional()
+  eventId?: string;
+
+  @Length(3, 50, { message: "El motivo debe tener entre 3 y 50 caracteres" })
+  @IsString({ message: "El motivo debe ser una cadena de texto" })
+  @Transform(({ value }) => value?.trim())
+  reason: string;
+
+  @IsBoolean({ message: "La receta del turno debe ser un booleano" })
+  @IsOptional()
+  recipe?: boolean;
+}

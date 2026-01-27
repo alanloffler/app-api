@@ -14,12 +14,15 @@ import { Event } from "@events/entities/event.entity";
 import { User } from "@users/entities/user.entity";
 
 @Entity("medical_history")
-@Index("idx_medical_history_user", ["userId"])
-@Index("idx_medical_history_event", ["eventId"])
-@Index("idx_medical_history_user_created", ["userId", "createdAt"])
+@Index("idx_mh_business_user", ["businessId", "userId"])
+@Index("idx_mh_business_event", ["businessId", "eventId"])
+@Index("idx_mh_business_user_created", ["businessId", "userId", "createdAt"])
 export class MedicalHistory {
   @PrimaryGeneratedColumn("uuid")
   id: string;
+
+  @Column({ name: "business_id", type: "uuid", nullable: false })
+  businessId: string;
 
   @Column({ name: "user_id", type: "uuid", nullable: false })
   userId: string;

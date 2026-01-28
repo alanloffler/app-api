@@ -228,6 +228,7 @@ export class UsersService {
       .where("history.businessId = :businessId", { businessId })
       .andWhere("history.userId = :userId", { userId: user.id })
       .withDeleted()
+      .orderBy("history.createdAt", "DESC")
       .getMany();
 
     if (!medicalHistory) throw new HttpException("Historial médico no encontrado", HttpStatus.NOT_FOUND);

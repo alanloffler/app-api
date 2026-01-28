@@ -1,4 +1,5 @@
 export const ERole = {
+  PATIENT: "patient",
   SUPERADMIN: "superadmin",
 } as const;
 

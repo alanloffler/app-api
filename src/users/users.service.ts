@@ -206,6 +206,37 @@ export class UsersService {
     return ApiResponse.success("Paciente encontrado", user);
   }
 
+  async findPatientSoftRemovedWithHistory(businessId: string, id: string): Promise<ApiResponse<User>> {
+    const user = await this.userRepository
+      .createQueryBuilder("user")
+      .leftJoinAndSelect("user.role", "role")
+      .select([...USER_SELECT, ...USER_ROLE_SELECT])
+      .where("user.businessId = :businessId", { businessId })
+      .andWhere("user.id = :id", { id })
+      .withDeleted()
+      .getOne();
+
+    if (!user) throw new HttpException("Usuario no encontrado", HttpStatus.NOT_FOUND);
+    if (user.role?.value !== ERole.PATIENT) {
+      throw new HttpException("El usuario no es un paciente", HttpStatus.BAD_REQUEST);
+    }
+
+    const medicalHistory = await this.dataSource
+      .getRepository(MedicalHistory)
+      .createQueryBuilder("history")
+      .select([...USER_HISTORY_SELECT])
+      .where("history.businessId = :businessId", { businessId })
+      .andWhere("history.userId = :userId", { userId: user.id })
+      .withDeleted()
+      .getMany();
+
+    if (!medicalHistory) throw new HttpException("Historial médico no encontrado", HttpStatus.NOT_FOUND);
+
+    user.medicalHistory = medicalHistory;
+
+    return ApiResponse.success("Paciente encontrado", user);
+  }
+
   async findOneSoftRemoved(id: string, businessId: string): Promise<ApiResponse<User>> {
     const user = await this.userRepository
       .createQueryBuilder("user")

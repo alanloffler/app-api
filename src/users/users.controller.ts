@@ -82,6 +82,12 @@ export class UsersController {
     return this.usersService.findAllSoftRemoved(role, businessId);
   }
 
+  @RequiredPermissions("patient-view")
+  @Get("patient-history/:id")
+  findPatientWithHistory(@BusinessId() businessId: string, @Param("id") id: string) {
+    return this.usersService.findPatientWithHistory(businessId, id);
+  }
+
   @RequiredPermissions(["admin-view", "patient-view", "professional-view"], "some")
   @Get("soft-remove/:id")
   findOneSoftRemoved(@Param("id", ParseUUIDPipe) id: string, @BusinessId() businessId: string) {

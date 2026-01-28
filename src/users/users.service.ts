@@ -7,10 +7,17 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { ApiResponse } from "@common/helpers/api-response.helper";
 import { CreateProfessionalDto } from "@users/dto/create-professional.dto";
 import { CreateUserDto } from "@users/dto/create-user.dto";
+import { MedicalHistory } from "@medical-history/entities/medical-history.entity";
 import { ProfessionalProfile } from "@professional-profile/entities/professional-profile.entity";
-import { USER_PROFILE_SELECT, USER_ROLE_SELECT, USER_SELECT } from "@users/constants/user-select.constant";
+import {
+  USER_HISTORY_SELECT,
+  USER_PROFILE_SELECT,
+  USER_ROLE_SELECT,
+  USER_SELECT,
+} from "@users/constants/user-select.constant";
 import { UpdateUserDto } from "@users/dto/update-user.dto";
 import { User } from "@users/entities/user.entity";
+import { ERole } from "@/common/enums/role.enum";
 
 @Injectable()
 export class UsersService {
@@ -125,6 +132,7 @@ export class UsersService {
 
     return ApiResponse.created<User>("Usuario creado", savedUser);
   }
+
   async findAll(role: string, businessId: string): Promise<ApiResponse<User[]>> {
     const users = await this.userRepository
       .createQueryBuilder("user")
@@ -167,6 +175,35 @@ export class UsersService {
     if (!user) throw new HttpException("Usuario no encontrado", HttpStatus.NOT_FOUND);
 
     return ApiResponse.success<User>("Usuario encontrado", user);
+  }
+
+  async findPatientWithHistory(businessId: string, id: string): Promise<ApiResponse<User>> {
+    const user = await this.userRepository
+      .createQueryBuilder("user")
+      .leftJoinAndSelect("user.role", "role")
+      .select([...USER_SELECT, ...USER_ROLE_SELECT])
+      .where("user.businessId = :businessId", { businessId })
+      .andWhere("user.id = :id", { id })
+      .getOne();
+
+    if (!user) throw new HttpException("Usuario no encontrado", HttpStatus.NOT_FOUND);
+    if (user.role?.value !== ERole.PATIENT) {
+      throw new HttpException("El usuario no es un paciente", HttpStatus.BAD_REQUEST);
+    }
+
+    const medicalHistory = await this.dataSource
+      .getRepository(MedicalHistory)
+      .createQueryBuilder("history")
+      .select([...USER_HISTORY_SELECT])
+      .where("history.businessId = :businessId", { businessId })
+      .andWhere("history.userId = :userId", { userId: user.id })
+      .getMany();
+
+    if (!medicalHistory) throw new HttpException("Historial médico no encontrado", HttpStatus.NOT_FOUND);
+
+    user.medicalHistory = medicalHistory;
+
+    return ApiResponse.success("Paciente encontrado", user);
   }
 
   async findOneSoftRemoved(id: string, businessId: string): Promise<ApiResponse<User>> {

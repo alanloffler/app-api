@@ -6,6 +6,7 @@ import {
   Index,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   Unique,
@@ -13,6 +14,7 @@ import {
 } from "typeorm";
 
 import { Business } from "@business/entities/business.entity";
+import { MedicalHistory } from "@medical-history/entities/medical-history.entity";
 import { ProfessionalProfile } from "@professional-profile/entities/professional-profile.entity";
 import { Role } from "@roles/entities/role.entity";
 
@@ -64,6 +66,9 @@ export class User {
 
   @OneToOne(() => ProfessionalProfile, (profile) => profile.user)
   professionalProfile?: ProfessionalProfile;
+
+  @OneToMany(() => MedicalHistory, (medicalHistory) => medicalHistory.user)
+  medicalHistory?: MedicalHistory[];
 
   @Column({ type: "text", nullable: true })
   refreshToken: string | null;

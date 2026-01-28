@@ -29,3 +29,5 @@ export const USER_PROFILE_SELECT = [
 ];
 
 export const USER_ROLE_SELECT = ["role.id", "role.name", "role.value", "role.description"];
+
+export const USER_HISTORY_SELECT = ["history.id", "history.reason", "history.recipe", "history.createdAt"];

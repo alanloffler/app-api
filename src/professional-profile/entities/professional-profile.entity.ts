@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   JoinColumn,
   OneToOne,
   PrimaryGeneratedColumn,
@@ -11,11 +12,18 @@ import {
 import { User } from "@users/entities/user.entity";
 
 @Entity()
+@Index("idx_prof_profile_business", ["businessId"])
+@Index("idx_prof_profile_business_user", ["businessId", "userId"])
+@Index("uq_prof_profile_business_license", ["businessId", "licenseId"], { unique: true })
 export class ProfessionalProfile {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  @Column({ type: "uuid", name: "user_id", unique: true })
+  // TODO: update professionals on database, then set nullable to false
+  @Column({ type: "uuid", name: "business_id", nullable: true })
+  businessId: string;
+
+  @Column({ type: "uuid", name: "user_id", nullable: false })
   userId: string;
 
   @OneToOne(() => User)

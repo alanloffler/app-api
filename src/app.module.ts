@@ -8,6 +8,7 @@ import { CacheConfigModule } from "@config/cache-config.module";
 import { EventsModule } from "@events/events.module";
 import { MedicalHistoryModule } from "@medical-history/medical-history.module";
 import { NotificationsModule } from "@notifications/notifications.module";
+import { PatientProfileModule } from "@patient-profile/patient-profile.module";
 import { PermissionsModule } from "@permissions/permissions.module";
 import { ProfessionalProfileModule } from "@professional-profile/professional-profile.module";
 import { RolesModule } from "@roles/roles.module";
@@ -31,6 +32,7 @@ import { typeOrmConfig } from "@config/typeorm.config";
     EventsModule,
     MedicalHistoryModule,
     NotificationsModule,
+    PatientProfileModule,
     PermissionsModule,
     ProfessionalProfileModule,
     RolesModule,

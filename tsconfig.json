@@ -31,6 +31,7 @@
       "@medical-history/*": ["./src/medical-history/*"],
       "@notifications/*": ["src/notifications/*"],
       "@permissions/*": ["./src/permissions/*"],
+      "@patient-profile/*": ["./src/patient-profile/*"],
       "@professional-profile/*": ["./src/professional-profile/*"],
       "@roles/*": ["./src/roles/*"],
       "@settings/*": ["./src/settings/*"],

@@ -1,10 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from "@nestjs/common";
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from "@nestjs/common";
 
 import { CreateProfessionalProfileDto } from "@professional-profile/dto/create-professional-profile.dto";
+import { JwtAuthGuard } from "@auth/guards/jwt-auth.guard";
+import { PermissionsGuard } from "@auth/guards/permissions.guard";
 import { ProfessionalProfileService } from "@professional-profile/professional-profile.service";
 import { UpdateProfessionalProfileDto } from "@professional-profile/dto/update-professional-profile.dto";
 
-// TODO: auth decorators
+@UseGuards(JwtAuthGuard, PermissionsGuard)
 @Controller("professional-profile")
 export class ProfessionalProfileController {
   constructor(private readonly professionalProfileService: ProfessionalProfileService) {}

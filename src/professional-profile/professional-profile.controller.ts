@@ -4,6 +4,7 @@ import { CreateProfessionalProfileDto } from "@professional-profile/dto/create-p
 import { ProfessionalProfileService } from "@professional-profile/professional-profile.service";
 import { UpdateProfessionalProfileDto } from "@professional-profile/dto/update-professional-profile.dto";
 
+// TODO: auth decorators
 @Controller("professional-profile")
 export class ProfessionalProfileController {
   constructor(private readonly professionalProfileService: ProfessionalProfileService) {}

@@ -19,8 +19,7 @@ export class ProfessionalProfile {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  // TODO: update professionals on database, then set nullable to false
-  @Column({ type: "uuid", name: "business_id", nullable: true })
+  @Column({ type: "uuid", name: "business_id", nullable: false })
   businessId: string;
 
   @Column({ type: "uuid", name: "user_id", nullable: false })

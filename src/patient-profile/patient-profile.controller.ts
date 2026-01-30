@@ -1,10 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from "@nestjs/common";
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from "@nestjs/common";
 
 import { CreatePatientProfileDto } from "@patient-profile/dto/create-patient-profile.dto";
+import { JwtAuthGuard } from "@auth/guards/jwt-auth.guard";
 import { PatientProfileService } from "@patient-profile/patient-profile.service";
+import { PermissionsGuard } from "@auth/guards/permissions.guard";
 import { UpdatePatientProfileDto } from "@patient-profile/dto/update-patient-profile.dto";
 
-// TODO: auth decorators
+@UseGuards(JwtAuthGuard, PermissionsGuard)
 @Controller("patient-profile")
 export class PatientProfileController {
   constructor(private readonly patientProfileService: PatientProfileService) {}

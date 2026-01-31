@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsOptional, IsString, IsUUID, Length, MinLength } from "class-validator";
+import { IsEmail, IsNotEmpty, IsOptional, IsString, Length, MinLength } from "class-validator";
 
 export class CreateUserDto {
   @Length(8, 8, { message: "El DNI debe tener 8 caracteres" })
@@ -31,10 +31,6 @@ export class CreateUserDto {
   @IsString({ message: "El número de teléfono debe ser una cadena de texto" })
   @IsNotEmpty({ message: "El número de teléfono es obligatorio" })
   phoneNumber: string;
-
-  @IsUUID("4", { message: "El rol debe ser un UUID v4" })
-  @IsNotEmpty({ message: "El rol es obligatorio" })
-  roleId: string;
 
   @IsString({ message: "El refresh token debe ser una cadena de texto" })
   @IsOptional()

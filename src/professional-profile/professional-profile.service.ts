@@ -1,27 +1,28 @@
-import { Injectable } from "@nestjs/common";
+import { EntityManager } from "typeorm";
+import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 
 import { CreateProfessionalProfileDto } from "@professional-profile/dto/create-professional-profile.dto";
-import { UpdateProfessionalProfileDto } from "@professional-profile/dto/update-professional-profile.dto";
+import { ProfessionalProfile } from "@professional-profile/entities/professional-profile.entity";
 
 @Injectable()
 export class ProfessionalProfileService {
-  create(createProfessionalProfileDto: CreateProfessionalProfileDto) {
-    return "This action adds a new professionalProfile";
-  }
+  async create(
+    profileDto: CreateProfessionalProfileDto,
+    userId: string,
+    businessId: string,
+    manager: EntityManager,
+  ): Promise<ProfessionalProfile> {
+    const existingLicense = await manager.findOne(ProfessionalProfile, {
+      where: { licenseId: profileDto.licenseId },
+    });
+    if (existingLicense) throw new HttpException("Matrícula ya registrada", HttpStatus.BAD_REQUEST);
 
-  findAll() {
-    return `This action returns all professionalProfile`;
-  }
+    const profile = manager.create(ProfessionalProfile, {
+      ...profileDto,
+      userId,
+      businessId,
+    });
 
-  findOne(id: number) {
-    return `This action returns a #${id} professionalProfile`;
-  }
-
-  update(id: number, updateProfessionalProfileDto: UpdateProfessionalProfileDto) {
-    return `This action updates a #${id} professionalProfile`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} professionalProfile`;
+    return manager.save(profile);
   }
 }

@@ -7,6 +7,7 @@ import { CreateProfessionalUseCase } from "@users/create-professional.use-case";
 import { JwtAuthGuard } from "@auth/guards/jwt-auth.guard";
 import { PermissionsGuard } from "@auth/guards/permissions.guard";
 import { RequiredPermissions } from "@auth/decorators/required-permissions.decorator";
+import { UpdateProfessionalUseCase } from "@users/update-professional.use-case";
 import { UpdateUserDto } from "@users/dto/update-user.dto";
 import { UsersService } from "@users/users.service";
 
@@ -15,6 +16,7 @@ import { UsersService } from "@users/users.service";
 export class UsersController {
   constructor(
     private readonly createProfessionalUseCase: CreateProfessionalUseCase,
+    private readonly updateProfessionalUseCase: UpdateProfessionalUseCase,
     private readonly usersService: UsersService,
   ) {}
 
@@ -116,7 +118,7 @@ export class UsersController {
     @Body() updateUserDto: UpdateUserDto,
     @BusinessId() businessId: string,
   ) {
-    return this.usersService.update(id, updateUserDto, businessId);
+    return this.updateProfessionalUseCase.update(id, businessId, updateUserDto);
   }
 
   @RequiredPermissions(["admin-restore", "patient-restore", "professional-restore"], "some")

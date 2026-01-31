@@ -27,8 +27,8 @@ export class ProfessionalProfileService {
     return manager.save(profile);
   }
 
-  async update(userId: string, profileDto: UpdateProfessionalProfileDto, manager: EntityManager) {
-    const profile = await manager.findOne(ProfessionalProfile, { where: { userId } });
+  async update(userId: string, businessId: string, profileDto: UpdateProfessionalProfileDto, manager: EntityManager) {
+    const profile = await manager.findOne(ProfessionalProfile, { where: { businessId, userId } });
     if (!profile) throw new HttpException("Perfil profesional no encontrado", HttpStatus.NOT_FOUND);
 
     if (profileDto.licenseId !== undefined) profile.licenseId = profileDto.licenseId;

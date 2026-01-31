@@ -25,7 +25,7 @@ export class ProfessionalProfile {
   @Column({ type: "uuid", name: "user_id", nullable: false })
   userId: string;
 
-  @OneToOne(() => User)
+  @OneToOne(() => User, { onDelete: "CASCADE" })
   @JoinColumn({ name: "user_id" })
   user: User;
 

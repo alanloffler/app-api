@@ -7,9 +7,10 @@ import { CreateProfessionalUseCase } from "@users/create-professional.use-case";
 import { JwtAuthGuard } from "@auth/guards/jwt-auth.guard";
 import { PermissionsGuard } from "@auth/guards/permissions.guard";
 import { RequiredPermissions } from "@auth/decorators/required-permissions.decorator";
+import { UpdateProfessionalDto } from "@users/dto/update-professional.dto";
 import { UpdateProfessionalUseCase } from "@users/update-professional.use-case";
-import { UpdateUserDto } from "@users/dto/update-user.dto";
 import { UsersService } from "@users/users.service";
+import { UpdateUserDto } from "./dto/update-user.dto";
 
 @UseGuards(JwtAuthGuard, PermissionsGuard)
 @Controller("users")
@@ -63,11 +64,12 @@ export class UsersController {
   }
 
   // Without permissions, admin can update his own profile
-  @Patch("profile")
-  updateProfile(@Request() req: IRequest, @Body() user: UpdateUserDto, @BusinessId() businessId: string) {
-    const userId = req.user.id;
-    return this.usersService.update(userId, user, businessId);
-  }
+  // TODO: MAKE SERVICE FOR THIS
+  // @Patch("profile")
+  // updateProfile(@Request() req: IRequest, @Body() user: UpdateUserDto, @BusinessId() businessId: string) {
+  //   const userId = req.user.id;
+  //   return this.usersService.update(userId, user, businessId);
+  // }
 
   @RequiredPermissions(["admin-view", "patient-view", "professional-view"], "some")
   @Get("role/:role")
@@ -111,6 +113,16 @@ export class UsersController {
     return this.usersService.findOne(id, businessId);
   }
 
+  @RequiredPermissions("professional-update")
+  @Patch("professional/:id")
+  updateProfessional(
+    @Param("id", ParseUUIDPipe) id: string,
+    @Body() updateProfessionalDto: UpdateProfessionalDto,
+    @BusinessId() businessId: string,
+  ) {
+    return this.updateProfessionalUseCase.execute(id, businessId, updateProfessionalDto);
+  }
+
   @RequiredPermissions(["admin-update", "patient-update", "professional-update"], "some")
   @Patch(":id")
   update(
@@ -118,7 +130,7 @@ export class UsersController {
     @Body() updateUserDto: UpdateUserDto,
     @BusinessId() businessId: string,
   ) {
-    return this.updateProfessionalUseCase.update(id, businessId, updateUserDto);
+    return this.usersService.update(id, businessId, updateUserDto);
   }
 
   @RequiredPermissions(["admin-restore", "patient-restore", "professional-restore"], "some")

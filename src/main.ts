@@ -38,7 +38,9 @@ async function bootstrap() {
   app.use(cookieParser());
   app.useGlobalPipes(
     new ValidationPipe({
+      forbidNonWhitelisted: true,
       transform: true,
+      whitelist: true,
       exceptionFactory: (errors: ValidationError[]) => {
         return new BadRequestException({
           errors: flattenErrors(errors),

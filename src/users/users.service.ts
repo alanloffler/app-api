@@ -192,17 +192,16 @@ export class UsersService {
     return ApiResponse.success<User>("Usuario encontrado", user);
   }
 
-  // TODO: Implement validations as AdminService
-  async update(id: string, updateUserDto: UpdateUserDto, businessId: string): Promise<ApiResponse<User>> {
-    await this.findOneById(id, businessId);
+  async update(id: string, businessId: string, updateUserDto: UpdateUserDto, manager: EntityManager): Promise<void> {
+    const user = await manager.findOne(User, { where: { id, businessId } });
+    if (!user) throw new HttpException("Usuario no encontrado", HttpStatus.NOT_FOUND);
 
-    const result = await this.userRepository.update(id, updateUserDto);
-    if (!result) throw new HttpException("Error al actualizar usuario", HttpStatus.BAD_REQUEST);
+    if (updateUserDto.email !== undefined) user.email = updateUserDto.email;
+    if (updateUserDto.firstName !== undefined) user.firstName = updateUserDto.firstName;
+    if (updateUserDto.lastName !== undefined) user.lastName = updateUserDto.lastName;
+    if (updateUserDto.phoneNumber !== undefined) user.phoneNumber = updateUserDto.phoneNumber;
 
-    const updatedUser = await this.userRepository.findOne({ where: { id } });
-    if (!updatedUser) throw new HttpException("Usuario no encontrado", HttpStatus.NOT_FOUND);
-
-    return ApiResponse.success<User>("Usuario actualizado", updatedUser);
+    await manager.save(user);
   }
 
   async softRemove(id: string, businessId: string): Promise<ApiResponse<User>> {

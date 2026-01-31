@@ -21,7 +21,7 @@ export class UpdateProfessionalUseCase {
 
     try {
       if (updateDto.user) {
-        await this.usersService.update(userId, businessId, updateDto.user, queryRunner.manager);
+        await this.usersService.updateUser(userId, businessId, updateDto.user, queryRunner.manager);
       }
 
       if (updateDto.profile) {

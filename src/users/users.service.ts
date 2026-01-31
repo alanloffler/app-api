@@ -192,7 +192,27 @@ export class UsersService {
     return ApiResponse.success<User>("Usuario encontrado", user);
   }
 
-  async update(id: string, businessId: string, updateUserDto: UpdateUserDto, manager: EntityManager): Promise<void> {
+  async update(id: string, businessId: string, updateUserDto: UpdateUserDto) {
+    const user = await this.userRepository.findOne({
+      where: { businessId, id },
+    });
+    if (!user) throw new HttpException("Usuario no encontrado", HttpStatus.NOT_FOUND);
+
+    const result = await this.userRepository.update(id, updateUserDto);
+    if (!result) throw new HttpException("Error al actualizar el usuario", HttpStatus.BAD_REQUEST);
+
+    const updatedUser = await this.userRepository.findOneBy({ id });
+    if (!updatedUser) throw new HttpException("Usuario no encontrado", HttpStatus.NOT_FOUND);
+
+    return ApiResponse.success<User>("Usuario actualizado", updatedUser);
+  }
+
+  async updateUser(
+    id: string,
+    businessId: string,
+    updateUserDto: UpdateUserDto,
+    manager: EntityManager,
+  ): Promise<void> {
     const user = await manager.findOne(User, { where: { id, businessId } });
     if (!user) throw new HttpException("Usuario no encontrado", HttpStatus.NOT_FOUND);
 

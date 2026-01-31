@@ -90,7 +90,7 @@ export class AuthService {
   async updateRefreshToken(id: string, refreshToken: string, businessId: string): Promise<void> {
     if (!businessId) throw new HttpException("BusinessId requerido", HttpStatus.BAD_REQUEST);
 
-    const updateToken = await this.usersService.update(id, { refreshToken }, businessId);
+    const updateToken = await this.usersService.update(id, businessId, { refreshToken });
     if (!updateToken) throw new HttpException("Error al actualizar token", HttpStatus.BAD_REQUEST);
   }
 

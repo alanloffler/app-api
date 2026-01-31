@@ -1,14 +1,14 @@
 import * as bcrypt from "bcrypt";
 import { ConfigService } from "@nestjs/config";
-import { DataSource, Repository } from "typeorm";
+import { DataSource, EntityManager, Repository } from "typeorm";
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 
 import { ApiResponse } from "@common/helpers/api-response.helper";
-import { CreateProfessionalDto } from "@users/dto/create-professional.dto";
 import { CreateUserDto } from "@users/dto/create-user.dto";
+import { ERole } from "@common/enums/role.enum";
 import { MedicalHistory } from "@medical-history/entities/medical-history.entity";
-import { ProfessionalProfile } from "@professional-profile/entities/professional-profile.entity";
+import { Role } from "@roles/entities/role.entity";
 import {
   USER_HISTORY_SELECT,
   USER_PROFILE_SELECT,
@@ -17,7 +17,6 @@ import {
 } from "@users/constants/user-select.constant";
 import { UpdateUserDto } from "@users/dto/update-user.dto";
 import { User } from "@users/entities/user.entity";
-import { ERole } from "@/common/enums/role.enum";
 
 @Injectable()
 export class UsersService {
@@ -27,110 +26,27 @@ export class UsersService {
     private readonly dataSource: DataSource,
   ) {}
 
-  async createProfessional(
-    professionalDto: CreateProfessionalDto,
-    businessId: string,
-  ): Promise<ApiResponse<{ user: User; profile: ProfessionalProfile }>> {
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
+  async createProfessional(userDto: CreateUserDto, businessId: string, manager: EntityManager): Promise<User> {
+    const existingIc = await manager.findOne(User, { where: { businessId, ic: userDto.ic } });
+    if (existingIc) throw new HttpException("DNI ya registrado", HttpStatus.BAD_REQUEST);
 
-    try {
-      const existingIc = await queryRunner.manager.findOne(User, {
-        where: { businessId, ic: professionalDto.user.ic },
-      });
-      if (existingIc) throw new HttpException("DNI ya registrado", HttpStatus.BAD_REQUEST);
-
-      const existingEmail = await queryRunner.manager.findOne(User, {
-        where: { businessId, email: professionalDto.user.email },
-      });
-      if (existingEmail) throw new HttpException("Email ya registrado", HttpStatus.BAD_REQUEST);
-
-      const existingLicense = await queryRunner.manager.findOne(ProfessionalProfile, {
-        where: { licenseId: professionalDto.profile.licenseId },
-      });
-      if (existingLicense) throw new HttpException("Matrícula ya registrada", HttpStatus.BAD_REQUEST);
-
-      const saltRounds = parseInt(this.configService.get("BCRYPT_SALT_ROUNDS") || "10");
-      const hashedPassword = await bcrypt.hash(professionalDto.user.password, saltRounds);
-
-      const user = queryRunner.manager.create(User, {
-        ...professionalDto.user,
-        businessId,
-        password: hashedPassword,
-      });
-      const savedUser = await queryRunner.manager.save(user);
-
-      const profile = queryRunner.manager.create(ProfessionalProfile, {
-        ...professionalDto.profile,
-        userId: savedUser.id,
-      });
-      const savedProfile = await queryRunner.manager.save(profile);
-
-      await queryRunner.commitTransaction();
-
-      return ApiResponse.created("Profesional creado", { user: savedUser, profile: savedProfile });
-    } catch (error) {
-      await queryRunner.rollbackTransaction();
-
-      if (error instanceof HttpException) throw error;
-
-      if (error.code === "23505") {
-        console.log(error);
-        if (error.detail?.includes("email")) {
-          throw new HttpException("Email ya registrado", HttpStatus.BAD_REQUEST);
-        }
-        if (error.detail?.includes("ic")) {
-          throw new HttpException("DNI ya registrado", HttpStatus.BAD_REQUEST);
-        }
-        if (error.detail?.includes("license_id")) {
-          throw new HttpException("Matrícula ya registrada", HttpStatus.BAD_REQUEST);
-        }
-        throw new HttpException("Ya existe un registro con estos datos", HttpStatus.BAD_REQUEST);
-      }
-
-      if (error.code === "23502") {
-        const column = error.column || "desconocido";
-        throw new HttpException(`El campo '${column}' es obligatorio`, HttpStatus.BAD_REQUEST);
-      }
-
-      if (error.code === "23503") {
-        throw new HttpException("Referencia inválida: el registro relacionado no existe", HttpStatus.BAD_REQUEST);
-      }
-
-      const message = error.message || "Error al crear profesional";
-      throw new HttpException(message, HttpStatus.BAD_REQUEST);
-    } finally {
-      await queryRunner.release();
-    }
-  }
-
-  async create(createUserDto: CreateUserDto, businessId: string): Promise<ApiResponse<User>> {
-    console.log(businessId);
-
-    const checkIc = await this.checkIcAvailability(createUserDto.ic, businessId);
-    if (checkIc.data === false) throw new HttpException("DNI ya registrado", HttpStatus.BAD_REQUEST);
-
-    const checkEmail = await this.checkEmailAvailability(createUserDto.email, businessId);
-    if (checkEmail.data === false) throw new HttpException("Email ya registrado", HttpStatus.BAD_REQUEST);
+    const existingEmail = await manager.findOne(User, { where: { businessId, email: userDto.email } });
+    if (existingEmail) throw new HttpException("Email ya registrado", HttpStatus.BAD_REQUEST);
 
     const saltRounds = parseInt(this.configService.get("BCRYPT_SALT_ROUNDS") || "10");
-    const hashedPassword = await bcrypt.hash(createUserDto.password, saltRounds);
+    const hashedPassword = await bcrypt.hash(userDto.password, saltRounds);
 
-    // TODO: transaction to also store the profile with settings
-    const createUser = this.userRepository.create({
-      ...createUserDto,
+    const professionalRole = await manager.findOne(Role, { where: { value: "professional" } });
+    if (!professionalRole) throw new HttpException("Rol profesional no encontrado", HttpStatus.BAD_REQUEST);
+
+    const user = manager.create(User, {
+      ...userDto,
       businessId,
       password: hashedPassword,
+      role: professionalRole,
     });
 
-    const saveUser = await this.userRepository.save(createUser);
-    if (!saveUser) throw new HttpException("Error al crear usuario", HttpStatus.BAD_REQUEST);
-
-    const savedUser = await this.findOneById(saveUser.id, businessId);
-    if (!savedUser) throw new HttpException("Usuario no encontrado", HttpStatus.BAD_REQUEST);
-
-    return ApiResponse.created<User>("Usuario creado", savedUser);
+    return manager.save(user);
   }
 
   async findAll(role: string, businessId: string): Promise<ApiResponse<User[]>> {

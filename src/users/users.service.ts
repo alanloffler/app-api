@@ -49,6 +49,29 @@ export class UsersService {
     return manager.save(user);
   }
 
+  async createPatient(userDto: CreateUserDto, businessId: string, manager: EntityManager): Promise<User> {
+    const existingIc = await manager.findOne(User, { where: { businessId, ic: userDto.ic } });
+    if (existingIc) throw new HttpException("DNI ya registrado", HttpStatus.BAD_REQUEST);
+
+    const existingEmail = await manager.findOne(User, { where: { businessId, email: userDto.email } });
+    if (existingEmail) throw new HttpException("Email ya registrado", HttpStatus.BAD_REQUEST);
+
+    const saltRounds = parseInt(this.configService.get("BCRYPT_SALT_ROUNDS") || "10");
+    const hashedPassword = await bcrypt.hash(userDto.password, saltRounds);
+
+    const patientRole = await manager.findOne(Role, { where: { value: "patient" } });
+    if (!patientRole) throw new HttpException("Rol no encontrado", HttpStatus.BAD_REQUEST);
+
+    const user = manager.create(User, {
+      ...userDto,
+      businessId,
+      password: hashedPassword,
+      role: patientRole,
+    });
+
+    return manager.save(user);
+  }
+
   async findAll(role: string, businessId: string): Promise<ApiResponse<User[]>> {
     const users = await this.userRepository
       .createQueryBuilder("user")

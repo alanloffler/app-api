@@ -7,16 +7,18 @@ import { CreateProfessionalUseCase } from "@users/create-professional.use-case";
 import { JwtAuthGuard } from "@auth/guards/jwt-auth.guard";
 import { PermissionsGuard } from "@auth/guards/permissions.guard";
 import { RequiredPermissions } from "@auth/decorators/required-permissions.decorator";
+import { SoftRemoveProfessionalUserCase } from "@users/soft-remove-professional.use-case";
 import { UpdateProfessionalDto } from "@users/dto/update-professional.dto";
 import { UpdateProfessionalUseCase } from "@users/update-professional.use-case";
+import { UpdateUserDto } from "@users/dto/update-user.dto";
 import { UsersService } from "@users/users.service";
-import { UpdateUserDto } from "./dto/update-user.dto";
 
 @UseGuards(JwtAuthGuard, PermissionsGuard)
 @Controller("users")
 export class UsersController {
   constructor(
     private readonly createProfessionalUseCase: CreateProfessionalUseCase,
+    private readonly softRemoveProfessionalUseCase: SoftRemoveProfessionalUserCase,
     private readonly updateProfessionalUseCase: UpdateProfessionalUseCase,
     private readonly usersService: UsersService,
   ) {}
@@ -141,8 +143,8 @@ export class UsersController {
 
   @RequiredPermissions(["admin-delete", "patient-delete", "professional-delete"], "some")
   @Delete("soft-remove/:id")
-  softRemove(@Param("id", ParseUUIDPipe) id: string, @BusinessId() businessId: string) {
-    return this.usersService.softRemove(id, businessId);
+  softRemoveProfessional(@Param("id", ParseUUIDPipe) id: string, @BusinessId() businessId: string) {
+    return this.softRemoveProfessionalUseCase.execute(id, businessId);
   }
 
   // @RequiredPermissions(["admin-delete-hard", "patient-delete-hard", "professional-delete-hard"], "some")

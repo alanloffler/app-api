@@ -27,7 +27,12 @@ export class ProfessionalProfileService {
     return manager.save(profile);
   }
 
-  async update(userId: string, businessId: string, profileDto: UpdateProfessionalProfileDto, manager: EntityManager) {
+  async update(
+    userId: string,
+    businessId: string,
+    profileDto: UpdateProfessionalProfileDto,
+    manager: EntityManager,
+  ): Promise<void> {
     const profile = await manager.findOne(ProfessionalProfile, { where: { businessId, userId } });
     if (!profile) throw new HttpException("El profesional no tiene un perfil", HttpStatus.NOT_FOUND);
 
@@ -36,7 +41,11 @@ export class ProfessionalProfileService {
     if (profileDto.specialty !== undefined) profile.specialty = profileDto.specialty;
     if (profileDto.workingDays !== undefined) profile.workingDays = profileDto.workingDays;
 
-    return manager.save(profile);
+    try {
+      await manager.save(profile);
+    } catch {
+      throw new HttpException("Error al actualizar el perfil profesional", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   async softRemove(userId: string, businessId: string, manager: EntityManager): Promise<void> {

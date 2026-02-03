@@ -64,5 +64,5 @@ export class ProfessionalProfile {
   updatedAt: Date;
 
   @DeleteDateColumn({ name: "deleted_at", nullable: true })
-  deletedAt: Date;
+  deletedAt?: Date;
 }

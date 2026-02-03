@@ -25,7 +25,7 @@ export class CreatePatientUseCase {
     await queryRunner.startTransaction();
 
     try {
-      const patient = await this.usersService.createPatient(patientDto.user, businessId, queryRunner.manager);
+      const user = await this.usersService.createPatient(patientDto.user, businessId, queryRunner.manager);
 
       const profile = await this.patientProfileService.create(
         patientDto.profile,
@@ -36,8 +36,7 @@ export class CreatePatientUseCase {
 
       await queryRunner.commitTransaction();
 
-      // TODO: fix return type
-      return ApiResponse.created("Paciente creado", {} as { user: User; profile: PatientProfile });
+      return ApiResponse.created("Paciente creado", { user, profile });
     } catch (error) {
       await queryRunner.rollbackTransaction();
       throw error;

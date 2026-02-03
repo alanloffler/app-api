@@ -25,7 +25,19 @@ export class PatientProfileService {
     return manager.save(profile);
   }
 
-  update(id: string, updatePatientProfileDto: UpdatePatientProfileDto) {
-    return `This action updates a #${id} patientProfile`;
+  async update(userId: string, businessId: string, profileDto: UpdatePatientProfileDto, manager: EntityManager) {
+    const profile = await manager.findOne(PatientProfile, { where: { businessId, userId } });
+    if (!profile) throw new HttpException("El paciente no tiene un perfil", HttpStatus.NOT_FOUND);
+
+    if (profileDto.gender !== undefined) profile.gender = profileDto.gender;
+    if (profileDto.birthDay !== undefined) profile.birthDay = profileDto.birthDay;
+    if (profileDto.bloodType !== undefined) profile.bloodType = profileDto.bloodType;
+    if (profileDto.weight !== undefined) profile.weight = profileDto.weight;
+    if (profileDto.height !== undefined) profile.height = profileDto.height;
+    if (profileDto.emergencyContactName !== undefined) profile.emergencyContactName = profileDto.emergencyContactName;
+    if (profileDto.emergencyContactPhone !== undefined)
+      profile.emergencyContactPhone = profileDto.emergencyContactPhone;
+
+    return manager.save(profile);
   }
 }

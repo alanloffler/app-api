@@ -1,4 +1,17 @@
-import { ArrayNotEmpty, IsArray, IsInt, IsNotEmpty, IsString, Max, MaxLength, Min, MinLength } from "class-validator";
+import {
+  ArrayNotEmpty,
+  IsArray,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Length,
+  Matches,
+  Max,
+  MaxLength,
+  Min,
+  MinLength,
+} from "class-validator";
 
 export class CreateProfessionalProfileDto {
   @MaxLength(20, { message: "La matrícula debe tener como máximo 20 caracteres" })
@@ -25,4 +38,29 @@ export class CreateProfessionalProfileDto {
   @ArrayNotEmpty({ message: "Debes agregar al menos un día laboral" })
   @IsArray({ message: "Los días laborales deben ser un array" })
   workingDays: number[];
+
+  @Length(5, 5, { message: "El horario de inicio debe tener formato HH:MM" })
+  @IsString({ message: "El horario de inicio debe ser una cadena de texto" })
+  @IsNotEmpty({ message: "El horario de inicio es obligatorio" })
+  startHour: string;
+
+  @Length(5, 5, { message: "El horario de fin debe tener formato HH:MM" })
+  @IsString({ message: "El horario de fin debe ser una cadena de texto" })
+  @IsNotEmpty({ message: "El horario de fin es obligatorio" })
+  endHour: string;
+
+  @Matches(/^\d{1,3}$/, { message: "La duración del turno es un número de entre 1 y 3 dígitos" })
+  @IsString({ message: "La duración del turno debe ser una cadena de texto" })
+  @IsNotEmpty({ message: "La duración del turno es obligatoria" })
+  slotDuration: string;
+
+  @Length(5, 5, { message: "El horario de inicio de excepción debe tener formato HH:MM" })
+  @IsString({ message: "El horario de inicio de excepción debe ser una cadena de texto" })
+  @IsOptional()
+  dailyExceptionStart?: string;
+
+  @Length(5, 5, { message: "El horario de fin de excepción debe tener formato HH:MM" })
+  @IsString({ message: "El horario de fin de excepción debe ser una cadena de texto" })
+  @IsOptional()
+  dailyExceptionEnd?: string;
 }

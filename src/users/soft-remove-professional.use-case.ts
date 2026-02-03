@@ -20,6 +20,8 @@ export class SoftRemoveProfessionalUserCase {
     try {
       await this.professionalProfileService.softRemove(userId, businessId, queryRunner.manager);
       await this.usersService.softRemove(userId, businessId, queryRunner.manager);
+
+      await queryRunner.commitTransaction();
     } catch (error) {
       await queryRunner.rollbackTransaction();
       throw error;

@@ -39,10 +39,25 @@ export class ProfessionalProfileService {
     return manager.save(profile);
   }
 
+  async softRemove(userId: string, businessId: string, manager: EntityManager): Promise<void> {
+    const profile = await manager.findOne(ProfessionalProfile, { where: { userId, businessId } });
+    if (!profile) throw new HttpException("Perfil profesional no encontrado", HttpStatus.NOT_FOUND);
+
+    try {
+      await manager.softRemove(profile);
+    } catch {
+      throw new HttpException("Error al eliminar el perfil profesional", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
   async remove(userId: string, businessId: string, manager: EntityManager): Promise<void> {
     const profile = await manager.findOne(ProfessionalProfile, { where: { userId, businessId } });
     if (!profile) throw new HttpException("Perfil profesional no encontrado", HttpStatus.NOT_FOUND);
 
-    await manager.remove(profile);
+    try {
+      await manager.remove(profile);
+    } catch {
+      throw new HttpException("Error al eliminar el perfil profesional", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 }

@@ -73,4 +73,6 @@ export class ProfessionalProfileService {
       throw new HttpException("Error al eliminar el perfil profesional", HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+
+  async restore() {}
 }

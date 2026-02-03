@@ -145,9 +145,9 @@ export class UsersController {
     return this.usersService.softRemove(id, businessId);
   }
 
-  @RequiredPermissions(["admin-delete-hard", "patient-delete-hard", "professional-delete-hard"], "some")
-  @Delete(":id")
-  remove(@Param("id", ParseUUIDPipe) id: string, @BusinessId() businessId: string) {
-    return this.usersService.remove(id, businessId);
-  }
+  // @RequiredPermissions(["admin-delete-hard", "patient-delete-hard", "professional-delete-hard"], "some")
+  // @Delete(":id")
+  // remove(@Param("id", ParseUUIDPipe) id: string, @BusinessId() businessId: string) {
+  //   return this.usersService.remove(id, businessId);
+  // }
 }

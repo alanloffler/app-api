@@ -257,16 +257,11 @@ export class UsersService {
     return ApiResponse.removed<User>("Usuario eliminado", result);
   }
 
-  // TODO: REPLACE ALL FINDONE WITH THIS.FINDONEBY()
-  //
-  async remove(id: string, businessId: string): Promise<ApiResponse<User>> {
-    const userToRemove = await this.findOneById(id, businessId);
-    if (!userToRemove) throw new HttpException("Usuario no encontrado", HttpStatus.NOT_FOUND);
+  async remove(id: string, businessId: string, manager: EntityManager): Promise<User> {
+    const user = await manager.findOne(User, { where: { businessId, id } });
+    if (!user) throw new HttpException("Usuario no encontrado", HttpStatus.NOT_FOUND);
 
-    const result = await this.userRepository.remove(userToRemove);
-    if (!result) throw new HttpException("Error al eliminar usuario", HttpStatus.BAD_REQUEST);
-
-    return ApiResponse.removed<User>("Usuario eliminado", result);
+    return manager.remove(user);
   }
 
   async restore(id: string, businessId: string): Promise<ApiResponse<User>> {

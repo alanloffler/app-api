@@ -29,7 +29,7 @@ export class ProfessionalProfileService {
 
   async update(userId: string, businessId: string, profileDto: UpdateProfessionalProfileDto, manager: EntityManager) {
     const profile = await manager.findOne(ProfessionalProfile, { where: { businessId, userId } });
-    if (!profile) throw new HttpException("Perfil profesional no encontrado", HttpStatus.NOT_FOUND);
+    if (!profile) throw new HttpException("El profesional no tiene un perfil", HttpStatus.NOT_FOUND);
 
     if (profileDto.licenseId !== undefined) profile.licenseId = profileDto.licenseId;
     if (profileDto.professionalPrefix !== undefined) profile.professionalPrefix = profileDto.professionalPrefix;

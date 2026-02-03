@@ -24,7 +24,11 @@ export class ProfessionalProfileService {
       businessId,
     });
 
-    return manager.save(profile);
+    try {
+      return manager.save(profile);
+    } catch {
+      throw new HttpException("Error al crear el perfil profesional", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   async update(

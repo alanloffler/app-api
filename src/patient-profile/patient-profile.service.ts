@@ -1,5 +1,5 @@
 import { EntityManager } from "typeorm";
-import { Injectable } from "@nestjs/common";
+import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 
 import { CreatePatientProfileDto } from "@patient-profile/dto/create-patient-profile.dto";
 import { PatientProfile } from "@patient-profile/entities/patient-profile.entity";
@@ -13,6 +13,9 @@ export class PatientProfileService {
     businessId: string,
     manager: EntityManager,
   ): Promise<PatientProfile> {
+    const existingProfile = await manager.findOne(PatientProfile, { where: { businessId, userId } });
+    if (existingProfile) throw new HttpException("El paciente ya tiene un perfil", HttpStatus.BAD_REQUEST);
+
     const profile = manager.create(PatientProfile, {
       ...profileDto,
       userId,
@@ -22,19 +25,7 @@ export class PatientProfileService {
     return manager.save(profile);
   }
 
-  findAll() {
-    return `This action returns all patientProfile`;
-  }
-
-  findOne(id: string) {
-    return `This action returns a #${id} patientProfile`;
-  }
-
   update(id: string, updatePatientProfileDto: UpdatePatientProfileDto) {
     return `This action updates a #${id} patientProfile`;
-  }
-
-  remove(id: string) {
-    return `This action removes a #${id} patientProfile`;
   }
 }

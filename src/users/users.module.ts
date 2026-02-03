@@ -3,6 +3,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 
 import { CreateProfessionalUseCase } from "@users/create-professional.use-case";
 import { ProfessionalProfileService } from "@professional-profile/professional-profile.service";
+import { RestoreProfessionalUseCase } from "@users/restore-professional.use-case";
 import { Role } from "@roles/entities/role.entity";
 import { SoftRemoveProfessionalUserCase } from "@users/soft-remove-professional.use-case";
 import { UpdateProfessionalUseCase } from "@users/update-professional.use-case";
@@ -16,6 +17,7 @@ import { UsersService } from "@users/users.service";
   providers: [
     CreateProfessionalUseCase,
     ProfessionalProfileService,
+    RestoreProfessionalUseCase,
     SoftRemoveProfessionalUserCase,
     UpdateProfessionalUseCase,
     UsersService,

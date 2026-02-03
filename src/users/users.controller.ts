@@ -7,6 +7,7 @@ import { CreateProfessionalUseCase } from "@users/create-professional.use-case";
 import { JwtAuthGuard } from "@auth/guards/jwt-auth.guard";
 import { PermissionsGuard } from "@auth/guards/permissions.guard";
 import { RequiredPermissions } from "@auth/decorators/required-permissions.decorator";
+import { RestoreProfessionalUseCase } from "@users/restore-professional.use-case";
 import { SoftRemoveProfessionalUserCase } from "@users/soft-remove-professional.use-case";
 import { UpdateProfessionalDto } from "@users/dto/update-professional.dto";
 import { UpdateProfessionalUseCase } from "@users/update-professional.use-case";
@@ -18,6 +19,7 @@ import { UsersService } from "@users/users.service";
 export class UsersController {
   constructor(
     private readonly createProfessionalUseCase: CreateProfessionalUseCase,
+    private readonly restoreProfessionalUseCase: RestoreProfessionalUseCase,
     private readonly softRemoveProfessionalUseCase: SoftRemoveProfessionalUserCase,
     private readonly updateProfessionalUseCase: UpdateProfessionalUseCase,
     private readonly usersService: UsersService,
@@ -116,13 +118,19 @@ export class UsersController {
   }
 
   @RequiredPermissions("professional-update")
-  @Patch("professional/:id")
+  @Patch(":id/professional")
   updateProfessional(
     @Param("id", ParseUUIDPipe) id: string,
     @Body() updateProfessionalDto: UpdateProfessionalDto,
     @BusinessId() businessId: string,
   ) {
     return this.updateProfessionalUseCase.execute(id, businessId, updateProfessionalDto);
+  }
+
+  @RequiredPermissions("professional-restore")
+  @Patch(":id/professional/restore")
+  restoreProfessional(@Param("id", ParseUUIDPipe) id: string, @BusinessId(ParseUUIDPipe) businessId: string) {
+    return this.restoreProfessionalUseCase.restore(id, businessId);
   }
 
   @RequiredPermissions(["admin-update", "patient-update", "professional-update"], "some")
@@ -135,15 +143,9 @@ export class UsersController {
     return this.usersService.update(id, businessId, updateUserDto);
   }
 
-  @RequiredPermissions(["admin-restore", "patient-restore", "professional-restore"], "some")
-  @Patch("restore/:id")
-  restore(@Param("id", ParseUUIDPipe) id: string, @BusinessId() businessId: string) {
-    return this.usersService.restore(id, businessId);
-  }
-
-  @RequiredPermissions(["admin-delete", "patient-delete", "professional-delete"], "some")
-  @Delete("soft-remove/:id")
-  softRemoveProfessional(@Param("id", ParseUUIDPipe) id: string, @BusinessId() businessId: string) {
+  @RequiredPermissions("professional-delete")
+  @Delete(":id/soft")
+  softRemoveProfessional(@Param("id", ParseUUIDPipe) id: string, @BusinessId(ParseUUIDPipe) businessId: string) {
     return this.softRemoveProfessionalUseCase.execute(id, businessId);
   }
 

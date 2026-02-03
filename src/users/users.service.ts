@@ -247,14 +247,15 @@ export class UsersService {
     await manager.save(user);
   }
 
-  async softRemove(id: string, businessId: string): Promise<ApiResponse<User>> {
-    const userToRemove = await this.findOneById(id, businessId);
-    if (!userToRemove) throw new HttpException("Usuario no encontrado", HttpStatus.NOT_FOUND);
+  async softRemove(id: string, businessId: string, manager: EntityManager): Promise<void> {
+    const user = await manager.findOne(User, { where: { id, businessId } });
+    if (!user) throw new HttpException("Usuario no encontrado", HttpStatus.NOT_FOUND);
 
-    const result = await this.userRepository.softRemove(userToRemove);
-    if (!result) throw new HttpException("Error al eliminar usuario", HttpStatus.BAD_REQUEST);
-
-    return ApiResponse.removed<User>("Usuario eliminado", result);
+    try {
+      await manager.softRemove(user);
+    } catch {
+      throw new HttpException("Error al eliminar usuario", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   async remove(id: string, businessId: string, manager: EntityManager): Promise<User> {

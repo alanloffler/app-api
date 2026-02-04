@@ -53,7 +53,7 @@ export class ProfessionalProfileService {
   }
 
   async softRemove(userId: string, businessId: string, manager: EntityManager): Promise<void> {
-    const profile = await manager.findOne(ProfessionalProfile, { where: { userId, businessId }, withDeleted: true });
+    const profile = await manager.findOne(ProfessionalProfile, { where: { userId, businessId } });
     if (!profile) throw new HttpException("Perfil profesional no encontrado", HttpStatus.NOT_FOUND);
 
     try {

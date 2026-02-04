@@ -8,6 +8,7 @@ import { JwtAuthGuard } from "@auth/guards/jwt-auth.guard";
 import { PermissionsGuard } from "@auth/guards/permissions.guard";
 import { RequiredPermissions } from "@auth/decorators/required-permissions.decorator";
 import { RestoreProfessionalUseCase } from "@users/restore-professional.use-case";
+import { RemoveProfessionalUseCase } from "@users/remove-professional.use-case";
 import { SoftRemoveProfessionalUserCase } from "@users/soft-remove-professional.use-case";
 import { UpdateProfessionalDto } from "@users/dto/update-professional.dto";
 import { UpdateProfessionalUseCase } from "@users/update-professional.use-case";
@@ -19,6 +20,7 @@ import { UsersService } from "@users/users.service";
 export class UsersController {
   constructor(
     private readonly createProfessionalUseCase: CreateProfessionalUseCase,
+    private readonly removeProfessionalUseCase: RemoveProfessionalUseCase,
     private readonly restoreProfessionalUseCase: RestoreProfessionalUseCase,
     private readonly softRemoveProfessionalUseCase: SoftRemoveProfessionalUserCase,
     private readonly updateProfessionalUseCase: UpdateProfessionalUseCase,
@@ -149,9 +151,9 @@ export class UsersController {
     return this.softRemoveProfessionalUseCase.execute(id, businessId);
   }
 
-  // @RequiredPermissions(["admin-delete-hard", "patient-delete-hard", "professional-delete-hard"], "some")
-  // @Delete(":id")
-  // remove(@Param("id", ParseUUIDPipe) id: string, @BusinessId() businessId: string) {
-  //   return this.usersService.remove(id, businessId);
-  // }
+  @RequiredPermissions("professional-delete-hard")
+  @Delete(":id/professional")
+  removeProfessional(@Param("id", ParseUUIDPipe) id: string, @BusinessId(ParseUUIDPipe) businessId: string) {
+    return this.removeProfessionalUseCase.execute(id, businessId);
+  }
 }

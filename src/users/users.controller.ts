@@ -130,7 +130,7 @@ export class UsersController {
   @RequiredPermissions("professional-restore")
   @Patch(":id/professional/restore")
   restoreProfessional(@Param("id", ParseUUIDPipe) id: string, @BusinessId(ParseUUIDPipe) businessId: string) {
-    return this.restoreProfessionalUseCase.restore(id, businessId);
+    return this.restoreProfessionalUseCase.execute(id, businessId);
   }
 
   @RequiredPermissions(["admin-update", "patient-update", "professional-update"], "some")

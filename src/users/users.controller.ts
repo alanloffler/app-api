@@ -144,7 +144,7 @@ export class UsersController {
   }
 
   @RequiredPermissions("professional-delete")
-  @Delete(":id/soft")
+  @Delete(":id/professional/soft")
   softRemoveProfessional(@Param("id", ParseUUIDPipe) id: string, @BusinessId(ParseUUIDPipe) businessId: string) {
     return this.softRemoveProfessionalUseCase.execute(id, businessId);
   }

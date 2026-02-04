@@ -13,7 +13,7 @@ export class RemoveProfessionalUseCase {
     private readonly professionalProfileService: ProfessionalProfileService,
   ) {}
 
-  async execute(userId: string, businessId: string) {
+  async execute(userId: string, businessId: string): Promise<ApiResponse<void>> {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -23,6 +23,7 @@ export class RemoveProfessionalUseCase {
       await this.usersService.remove(userId, businessId, queryRunner.manager);
 
       await queryRunner.commitTransaction();
+
       return ApiResponse.success("Profesional eliminado");
     } catch (error) {
       await queryRunner.rollbackTransaction();

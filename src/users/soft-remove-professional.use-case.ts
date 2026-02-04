@@ -1,6 +1,7 @@
 import { DataSource } from "typeorm";
 import { Injectable } from "@nestjs/common";
 
+import { ApiResponse } from "@common/helpers/api-response.helper";
 import { ProfessionalProfileService } from "@professional-profile/professional-profile.service";
 import { UsersService } from "@users/users.service";
 
@@ -12,7 +13,7 @@ export class SoftRemoveProfessionalUserCase {
     private readonly usersService: UsersService,
   ) {}
 
-  async execute(userId: string, businessId: string) {
+  async execute(userId: string, businessId: string): Promise<ApiResponse<void>> {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -22,6 +23,8 @@ export class SoftRemoveProfessionalUserCase {
       await this.usersService.softRemove(userId, businessId, queryRunner.manager);
 
       await queryRunner.commitTransaction();
+
+      return ApiResponse.success("Profesional eliminado");
     } catch (error) {
       await queryRunner.rollbackTransaction();
       throw error;

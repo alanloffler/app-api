@@ -113,6 +113,13 @@ export class UsersController {
     return this.usersService.findOneWithCredentials(id, businessId);
   }
 
+  // User by role with profile
+  @RequiredPermissions("professional-view")
+  @Get(":id/professional/profile/soft")
+  findProfessionalSoftRemovedWithProfile(@BusinessId(ParseUUIDPipe) businessId: string, @Param("id") id: string) {
+    return this.usersService.findProfessionalSoftRemovedWithProfile(businessId, id);
+  }
+
   @RequiredPermissions(["admin-view", "patient-view", "professional-view"], "some")
   @Get(":id")
   findOne(@Param("id", ParseUUIDPipe) id: string, @BusinessId() businessId: string) {

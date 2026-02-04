@@ -10,8 +10,8 @@ import { UsersService } from "@users/users.service";
 export class UpdateProfessionalUseCase {
   constructor(
     private readonly dataSource: DataSource,
-    private readonly usersService: UsersService,
     private readonly professionalProfileService: ProfessionalProfileService,
+    private readonly usersService: UsersService,
   ) {}
 
   async execute(userId: string, businessId: string, updateDto: UpdateProfessionalDto): Promise<ApiResponse<void>> {
@@ -29,6 +29,7 @@ export class UpdateProfessionalUseCase {
       }
 
       await queryRunner.commitTransaction();
+
       return ApiResponse.success("Profesional actualizado");
     } catch (error) {
       await queryRunner.rollbackTransaction();

@@ -79,7 +79,7 @@ export class ProfessionalProfileService {
     if (!profile) throw new HttpException("Perfil profesional no encontrado", HttpStatus.NOT_FOUND);
 
     try {
-      await manager.restore(ProfessionalProfile, userId);
+      await manager.restore(ProfessionalProfile, profile.id);
     } catch {
       throw new HttpException("Error al restaurar el perfil profesional", HttpStatus.INTERNAL_SERVER_ERROR);
     }

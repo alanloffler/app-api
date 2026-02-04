@@ -1,6 +1,7 @@
 import { DataSource } from "typeorm";
 import { Injectable } from "@nestjs/common";
 
+import { ApiResponse } from "@common/helpers/api-response.helper";
 import { ProfessionalProfileService } from "@professional-profile/professional-profile.service";
 import { UsersService } from "@users/users.service";
 
@@ -22,6 +23,8 @@ export class RestoreProfessionalUseCase {
       await this.usersService.restore(userId, businessId, queryRunner.manager);
 
       await queryRunner.commitTransaction();
+
+      return ApiResponse.success("Profesional restaurado");
     } catch (error) {
       await queryRunner.rollbackTransaction();
       throw error;

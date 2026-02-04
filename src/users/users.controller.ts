@@ -3,15 +3,15 @@ import { Controller, Get, Post, Body, Patch, Param, Request, Delete, UseGuards, 
 import type { IRequest } from "@auth/interfaces/request.interface";
 import { BusinessId } from "@common/decorators/business-id.decorator";
 import { CreateProfessionalDto } from "@users/dto/create-professional.dto";
-import { CreateProfessionalUseCase } from "@users/create-professional.use-case";
+import { CreateProfessionalUseCase } from "@users/use-cases/professional/create-professional.use-case";
 import { JwtAuthGuard } from "@auth/guards/jwt-auth.guard";
 import { PermissionsGuard } from "@auth/guards/permissions.guard";
+import { RemoveProfessionalUseCase } from "@users/use-cases/professional/remove-professional.use-case";
 import { RequiredPermissions } from "@auth/decorators/required-permissions.decorator";
-import { RestoreProfessionalUseCase } from "@users/restore-professional.use-case";
-import { RemoveProfessionalUseCase } from "@users/remove-professional.use-case";
-import { SoftRemoveProfessionalUserCase } from "@users/soft-remove-professional.use-case";
+import { RestoreProfessionalUseCase } from "@users/use-cases/professional/restore-professional.use-case";
+import { SoftRemoveProfessionalUserCase } from "@users/use-cases/professional/soft-remove-professional.use-case";
 import { UpdateProfessionalDto } from "@users/dto/update-professional.dto";
-import { UpdateProfessionalUseCase } from "@users/update-professional.use-case";
+import { UpdateProfessionalUseCase } from "@users/use-cases/professional/update-professional.use-case";
 import { UpdateUserDto } from "@users/dto/update-user.dto";
 import { UsersService } from "@users/users.service";
 

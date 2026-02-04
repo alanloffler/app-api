@@ -13,7 +13,7 @@ export const USER_SELECT = [
   "user.deletedAt",
 ];
 
-export const USER_PROFILE_SELECT = [
+export const PROFESSIONAL_PROFILE_SELECT = [
   "profile.id",
   "profile.licenseId",
   "profile.professionalPrefix",

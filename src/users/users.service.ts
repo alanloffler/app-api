@@ -10,8 +10,8 @@ import { ERole } from "@common/enums/role.enum";
 import { MedicalHistory } from "@medical-history/entities/medical-history.entity";
 import { Role } from "@roles/entities/role.entity";
 import {
+  PROFESSIONAL_PROFILE_SELECT,
   USER_HISTORY_SELECT,
-  USER_PROFILE_SELECT,
   USER_ROLE_SELECT,
   USER_SELECT,
 } from "@users/constants/user-select.constant";
@@ -106,7 +106,7 @@ export class UsersService {
       .createQueryBuilder("user")
       .leftJoinAndSelect("user.role", "role")
       .leftJoinAndSelect("user.professionalProfile", "profile")
-      .select([...USER_SELECT, ...USER_ROLE_SELECT, ...USER_PROFILE_SELECT])
+      .select([...USER_SELECT, ...USER_ROLE_SELECT, ...PROFESSIONAL_PROFILE_SELECT])
       .where("user.businessId = :businessId", { businessId })
       .andWhere("user.id = :id", { id })
       .withDeleted()
@@ -182,7 +182,7 @@ export class UsersService {
       .createQueryBuilder("user")
       .leftJoinAndSelect("user.role", "role")
       .leftJoinAndSelect("user.professionalProfile", "profile")
-      .select([...USER_SELECT, ...USER_ROLE_SELECT, ...USER_PROFILE_SELECT])
+      .select([...USER_SELECT, ...USER_ROLE_SELECT, ...PROFESSIONAL_PROFILE_SELECT])
       .where("user.businessId = :businessId", { businessId })
       .andWhere("user.id = :id", { id })
       .withDeleted()
@@ -213,6 +213,22 @@ export class UsersService {
     if (!user) throw new HttpException("Usuario no encontrado", HttpStatus.NOT_FOUND);
 
     return ApiResponse.success<User>("Usuario encontrado", user);
+  }
+
+  // Find by role
+  async findProfessionalSoftRemovedWithProfile(businessId: string, id: string): Promise<ApiResponse<User>> {
+    const user = await this.userRepository
+      .createQueryBuilder("user")
+      .leftJoinAndSelect("user.role", "role")
+      .leftJoinAndSelect("user.professionalProfile", "profile")
+      .select([...USER_SELECT, ...USER_ROLE_SELECT, ...PROFESSIONAL_PROFILE_SELECT])
+      .where("user.businessId = :businessId", { businessId })
+      .andWhere("user.id = :id", { id })
+      .withDeleted()
+      .getOne();
+    if (!user) throw new HttpException("Profesional no encontrado", HttpStatus.NOT_FOUND);
+
+    return ApiResponse.success<User>("Profesional encontrado", user);
   }
 
   async update(id: string, businessId: string, updateUserDto: UpdateUserDto) {

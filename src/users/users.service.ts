@@ -265,20 +265,15 @@ export class UsersService {
     return manager.remove(user);
   }
 
-  async restore(id: string, businessId: string): Promise<ApiResponse<User>> {
-    const userToRestore = await this.userRepository.findOne({
-      where: { businessId, id },
-      withDeleted: true,
-    });
-    if (!userToRestore) throw new HttpException("Usuario no encontrado", HttpStatus.NOT_FOUND);
+  async restore(id: string, businessId: string, manager: EntityManager): Promise<void> {
+    const user = await manager.findOne(User, { where: { businessId, id }, withDeleted: true });
+    if (!user) throw new HttpException("Usuario no encontrado", HttpStatus.NOT_FOUND);
 
-    const result = await this.userRepository.restore(userToRestore.id);
-    if (!result) throw new HttpException("Error al restaurar usuario", HttpStatus.BAD_REQUEST);
-
-    const restoredUser = await this.findOneById(id, businessId);
-    if (!restoredUser) throw new HttpException("Usuario no encontrado", HttpStatus.NOT_FOUND);
-
-    return ApiResponse.success<User>("Usuario restaurado", restoredUser);
+    try {
+      await manager.restore(User, { id, businessId });
+    } catch {
+      throw new HttpException("Error al restaurar usuario", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   // Without controller for external API use

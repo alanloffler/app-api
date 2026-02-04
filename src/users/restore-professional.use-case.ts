@@ -13,7 +13,7 @@ export class RestoreProfessionalUseCase {
     private readonly usersService: UsersService,
   ) {}
 
-  async execute(userId: string, businessId: string) {
+  async execute(userId: string, businessId: string): Promise<ApiResponse<void>> {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();

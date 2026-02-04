@@ -258,11 +258,15 @@ export class UsersService {
     }
   }
 
-  async remove(id: string, businessId: string, manager: EntityManager): Promise<User> {
+  async remove(id: string, businessId: string, manager: EntityManager): Promise<void> {
     const user = await manager.findOne(User, { where: { businessId, id } });
     if (!user) throw new HttpException("Usuario no encontrado", HttpStatus.NOT_FOUND);
 
-    return manager.remove(user);
+    try {
+      await manager.remove(user);
+    } catch {
+      throw new HttpException("Error al eliminar usuario", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   async restore(id: string, businessId: string, manager: EntityManager): Promise<void> {

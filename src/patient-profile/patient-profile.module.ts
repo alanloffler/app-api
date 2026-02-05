@@ -9,5 +9,6 @@ import { User } from "@users/entities/user.entity";
 @Module({
   imports: [TypeOrmModule.forFeature([PatientProfile, Role, User])],
   providers: [PatientProfileService],
+  exports: [PatientProfileService],
 })
 export class PatientProfileModule {}

@@ -268,9 +268,10 @@ export class UsersService {
       user.userName = updateUserDto.userName;
     }
 
-    if (updateUserDto.email !== undefined) {
-      throw new HttpException("Must check email availability", HttpStatus.BAD_REQUEST);
-      // user.email = updateUserDto.email;
+    if (updateUserDto.email !== undefined && updateUserDto.email !== user.email) {
+      const existingEmail = await this.checkEmailAvailability(updateUserDto.email, businessId);
+      if (existingEmail) throw new HttpException("Email ya registrado", HttpStatus.BAD_REQUEST);
+      user.email = updateUserDto.email;
     }
 
     if (updateUserDto.firstName !== undefined) user.firstName = updateUserDto.firstName;

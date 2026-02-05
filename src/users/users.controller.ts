@@ -2,6 +2,8 @@ import { Controller, Get, Post, Body, Patch, Param, Request, Delete, UseGuards, 
 
 import type { IRequest } from "@auth/interfaces/request.interface";
 import { BusinessId } from "@common/decorators/business-id.decorator";
+import { CreatePatientDto } from "@users/dto/create-patient.dto";
+import { CreatePatientUseCase } from "@users/use-cases/patient/create-patient.use-case";
 import { CreateProfessionalDto } from "@users/dto/create-professional.dto";
 import { CreateProfessionalUseCase } from "@users/use-cases/professional/create-professional.use-case";
 import { JwtAuthGuard } from "@auth/guards/jwt-auth.guard";
@@ -19,6 +21,7 @@ import { UsersService } from "@users/users.service";
 @Controller("users")
 export class UsersController {
   constructor(
+    private readonly createPatientUseCase: CreatePatientUseCase,
     private readonly createProfessionalUseCase: CreateProfessionalUseCase,
     private readonly removeProfessionalUseCase: RemoveProfessionalUseCase,
     private readonly restoreProfessionalUseCase: RestoreProfessionalUseCase,

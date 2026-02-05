@@ -28,7 +28,7 @@ export class UsersController {
   ) {}
 
   @RequiredPermissions("professional-create")
-  @Post("create-professional")
+  @Post("professional")
   createProfessional(@Body() professionalDto: CreateProfessionalDto, @BusinessId() businessId: string) {
     return this.createProfessionalUseCase.execute(professionalDto, businessId);
   }

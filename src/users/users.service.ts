@@ -30,6 +30,9 @@ export class UsersService {
     const existingIc = await manager.findOne(User, { where: { businessId, ic: userDto.ic } });
     if (existingIc) throw new HttpException("DNI ya registrado", HttpStatus.BAD_REQUEST);
 
+    const existingUsername = await manager.findOne(User, { where: { businessId, userName: userDto.userName } });
+    if (existingUsername) throw new HttpException("Nombre de usuario ya registrado", HttpStatus.BAD_REQUEST);
+
     const existingEmail = await manager.findOne(User, { where: { businessId, email: userDto.email } });
     if (existingEmail) throw new HttpException("Email ya registrado", HttpStatus.BAD_REQUEST);
 
@@ -52,6 +55,9 @@ export class UsersService {
   async createPatient(userDto: CreateUserDto, businessId: string, manager: EntityManager): Promise<User> {
     const existingIc = await manager.findOne(User, { where: { businessId, ic: userDto.ic } });
     if (existingIc) throw new HttpException("DNI ya registrado", HttpStatus.BAD_REQUEST);
+
+    const existingUsername = await manager.findOne(User, { where: { businessId, userName: userDto.userName } });
+    if (existingUsername) throw new HttpException("Nombre de usuario ya registrado", HttpStatus.BAD_REQUEST);
 
     const existingEmail = await manager.findOne(User, { where: { businessId, email: userDto.email } });
     if (existingEmail) throw new HttpException("Email ya registrado", HttpStatus.BAD_REQUEST);

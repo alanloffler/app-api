@@ -22,7 +22,11 @@ export class PatientProfileService {
       businessId,
     });
 
-    return manager.save(profile);
+    try {
+      return manager.save(profile);
+    } catch {
+      throw new HttpException("Error al crear el perfil del paciente", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   async update(userId: string, businessId: string, profileDto: UpdatePatientProfileDto, manager: EntityManager) {

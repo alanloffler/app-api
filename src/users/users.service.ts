@@ -216,6 +216,21 @@ export class UsersService {
   }
 
   // Find by role
+  async findProfessionalWithProfile(id: string, businessId: string): Promise<ApiResponse<User>> {
+    console.log("findProfessionalWithProfile");
+    const professional = await this.userRepository
+      .createQueryBuilder("user")
+      .leftJoinAndSelect("user.role", "role")
+      .leftJoinAndSelect("user.professionalProfile", "profile")
+      .select([...USER_SELECT, ...USER_ROLE_SELECT, ...PROFESSIONAL_PROFILE_SELECT])
+      .where("user.businessId = :businessId", { businessId })
+      .andWhere("user.id = :id", { id })
+      .getOne();
+    if (!professional) throw new HttpException("Profesional no encontrado!", HttpStatus.NOT_FOUND);
+
+    return ApiResponse.success<User>("Profesional encontrado", professional);
+  }
+
   async findProfessionalSoftRemovedWithProfile(businessId: string, id: string): Promise<ApiResponse<User>> {
     const user = await this.userRepository
       .createQueryBuilder("user")

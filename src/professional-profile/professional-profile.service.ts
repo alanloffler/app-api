@@ -27,7 +27,7 @@ export class ProfessionalProfileService {
     try {
       return manager.save(profile);
     } catch {
-      throw new HttpException("Error al crear el perfil profesional", HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException("Error al crear el perfil del profesional", HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -53,7 +53,7 @@ export class ProfessionalProfileService {
     try {
       await manager.save(profile);
     } catch {
-      throw new HttpException("Error al actualizar el perfil profesional", HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException("Error al actualizar el perfil del profesional", HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -64,7 +64,7 @@ export class ProfessionalProfileService {
     try {
       await manager.softRemove(profile);
     } catch {
-      throw new HttpException("Error al eliminar el perfil profesional", HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException("Error al eliminar el perfil del profesional", HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -75,7 +75,7 @@ export class ProfessionalProfileService {
     try {
       await manager.remove(profile);
     } catch {
-      throw new HttpException("Error al eliminar el perfil profesional", HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException("Error al eliminar el perfil del profesional", HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -86,7 +86,7 @@ export class ProfessionalProfileService {
     try {
       await manager.restore(ProfessionalProfile, profile.id);
     } catch {
-      throw new HttpException("Error al restaurar el perfil profesional", HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException("Error al restaurar el perfil del profesional", HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }

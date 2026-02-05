@@ -231,6 +231,7 @@ export class UsersService {
     return ApiResponse.success<User>("Profesional encontrado", user);
   }
 
+  // TODO: maybe remove after implement updatePatient
   async update(id: string, businessId: string, updateUserDto: UpdateUserDto) {
     const user = await this.userRepository.findOne({
       where: { businessId, id },
@@ -253,14 +254,35 @@ export class UsersService {
     manager: EntityManager,
   ): Promise<void> {
     const user = await manager.findOne(User, { where: { id, businessId } });
-    if (!user) throw new HttpException("Usuario no encontrado", HttpStatus.NOT_FOUND);
+    if (!user) throw new HttpException("Profesional no encontrado", HttpStatus.NOT_FOUND);
 
-    if (updateUserDto.email !== undefined) user.email = updateUserDto.email;
+    if (updateUserDto.ic !== undefined) {
+      throw new HttpException("Must check ic availability", HttpStatus.BAD_REQUEST);
+      // user.ic = updateUserDto.ic;
+    }
+
+    if (updateUserDto.userName !== undefined) {
+      throw new HttpException("Must check username availability", HttpStatus.BAD_REQUEST);
+      // user.userName = updateUserDto.userName;
+    }
+
+    if (updateUserDto.email !== undefined) {
+      throw new HttpException("Must check email availability", HttpStatus.BAD_REQUEST);
+      // user.email = updateUserDto.email;
+    }
+
     if (updateUserDto.firstName !== undefined) user.firstName = updateUserDto.firstName;
     if (updateUserDto.lastName !== undefined) user.lastName = updateUserDto.lastName;
+    if (updateUserDto.password !== undefined) user.password = updateUserDto.password;
     if (updateUserDto.phoneNumber !== undefined) user.phoneNumber = updateUserDto.phoneNumber;
+    // TODO: refreshToken in his own service
+    if (updateUserDto.refreshToken !== undefined) user.refreshToken = updateUserDto.refreshToken;
 
-    await manager.save(user);
+    try {
+      await manager.save(user);
+    } catch {
+      throw new HttpException("Error al actualizar el profesional", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   async softRemove(id: string, businessId: string, manager: EntityManager): Promise<void> {

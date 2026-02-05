@@ -256,9 +256,10 @@ export class UsersService {
     const user = await manager.findOne(User, { where: { id, businessId } });
     if (!user) throw new HttpException("Profesional no encontrado", HttpStatus.NOT_FOUND);
 
-    if (updateUserDto.ic !== undefined) {
-      throw new HttpException("Must check ic availability", HttpStatus.BAD_REQUEST);
-      // user.ic = updateUserDto.ic;
+    if (updateUserDto.ic !== undefined && updateUserDto.ic !== user.ic) {
+      const existingIc = await this.checkIcAvailability(updateUserDto.ic, businessId);
+      if (existingIc) throw new HttpException("DNI ya registrado", HttpStatus.BAD_REQUEST);
+      user.ic = updateUserDto.ic;
     }
 
     if (updateUserDto.userName !== undefined) {

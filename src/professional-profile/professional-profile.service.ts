@@ -44,6 +44,11 @@ export class ProfessionalProfileService {
     if (profileDto.professionalPrefix !== undefined) profile.professionalPrefix = profileDto.professionalPrefix;
     if (profileDto.specialty !== undefined) profile.specialty = profileDto.specialty;
     if (profileDto.workingDays !== undefined) profile.workingDays = profileDto.workingDays;
+    if (profileDto.startHour !== undefined) profile.startHour = profileDto.startHour;
+    if (profileDto.endHour !== undefined) profile.endHour = profileDto.endHour;
+    if (profileDto.slotDuration !== undefined) profile.slotDuration = profileDto.slotDuration;
+    if (profileDto.dailyExceptionStart !== undefined) profile.dailyExceptionStart = profileDto.dailyExceptionStart;
+    if (profileDto.dailyExceptionEnd !== undefined) profile.dailyExceptionEnd = profileDto.dailyExceptionEnd;
 
     try {
       await manager.save(profile);

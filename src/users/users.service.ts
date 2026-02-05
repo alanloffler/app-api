@@ -283,8 +283,6 @@ export class UsersService {
     if (updateUserDto.firstName !== undefined) user.firstName = updateUserDto.firstName;
     if (updateUserDto.lastName !== undefined) user.lastName = updateUserDto.lastName;
     if (updateUserDto.phoneNumber !== undefined) user.phoneNumber = updateUserDto.phoneNumber;
-    // TODO: refreshToken in his own service
-    if (updateUserDto.refreshToken !== undefined) user.refreshToken = updateUserDto.refreshToken;
 
     try {
       await manager.save(user);

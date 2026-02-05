@@ -1,7 +1,9 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 
+import { CreatePatientUseCase } from "@users/use-cases/patient/create-patient.use-case";
 import { CreateProfessionalUseCase } from "@users/use-cases/professional/create-professional.use-case";
+import { PatientProfileService } from "@patient-profile/patient-profile.service";
 import { ProfessionalProfileService } from "@professional-profile/professional-profile.service";
 import { RemoveProfessionalUseCase } from "@users/use-cases/professional/remove-professional.use-case";
 import { RestoreProfessionalUseCase } from "@users/use-cases/professional/restore-professional.use-case";
@@ -16,7 +18,9 @@ import { UsersService } from "@users/users.service";
   imports: [TypeOrmModule.forFeature([Role, User])],
   controllers: [UsersController],
   providers: [
+    CreatePatientUseCase,
     CreateProfessionalUseCase,
+    PatientProfileService,
     ProfessionalProfileService,
     RemoveProfessionalUseCase,
     RestoreProfessionalUseCase,

@@ -274,9 +274,14 @@ export class UsersService {
       user.email = updateUserDto.email;
     }
 
+    if (updateUserDto.password !== undefined) {
+      const saltRounds = parseInt(this.configService.get("BCRYPT_SALT_ROUNDS") || "10");
+      const hashedPassword = await bcrypt.hash(updateUserDto.password, saltRounds);
+      user.password = hashedPassword;
+    }
+
     if (updateUserDto.firstName !== undefined) user.firstName = updateUserDto.firstName;
     if (updateUserDto.lastName !== undefined) user.lastName = updateUserDto.lastName;
-    if (updateUserDto.password !== undefined) user.password = updateUserDto.password;
     if (updateUserDto.phoneNumber !== undefined) user.phoneNumber = updateUserDto.phoneNumber;
     // TODO: refreshToken in his own service
     if (updateUserDto.refreshToken !== undefined) user.refreshToken = updateUserDto.refreshToken;

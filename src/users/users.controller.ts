@@ -28,6 +28,12 @@ export class UsersController {
   ) {}
 
   @RequiredPermissions("professional-create")
+  @Post("patient")
+  createPatient(@Body() patientDto: CreatePatientDto, @BusinessId() businessId: string) {
+    return this.createPatientUseCase.execute(patientDto, businessId);
+  }
+
+  @RequiredPermissions("professional-create")
   @Post("professional")
   createProfessional(@Body() professionalDto: CreateProfessionalDto, @BusinessId() businessId: string) {
     return this.createProfessionalUseCase.execute(professionalDto, businessId);

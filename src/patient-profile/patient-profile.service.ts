@@ -42,6 +42,10 @@ export class PatientProfileService {
     if (profileDto.emergencyContactPhone !== undefined)
       profile.emergencyContactPhone = profileDto.emergencyContactPhone;
 
-    return manager.save(profile);
+    try {
+      return manager.save(profile);
+    } catch {
+      throw new HttpException("Error al actualizar el perfil del paciente", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 }

@@ -40,7 +40,15 @@ export class ProfessionalProfileService {
     const profile = await manager.findOne(ProfessionalProfile, { where: { businessId, userId } });
     if (!profile) throw new HttpException("Perfil profesional no encontrado", HttpStatus.NOT_FOUND);
 
-    if (profileDto.licenseId !== undefined) profile.licenseId = profileDto.licenseId;
+    if (profileDto.licenseId !== undefined && profileDto.licenseId !== profile.licenseId) {
+      const existingLicense = await manager.findOne(ProfessionalProfile, {
+        where: { licenseId: profileDto.licenseId },
+      });
+      if (existingLicense) throw new HttpException("Matrícula ya registrada", HttpStatus.BAD_REQUEST);
+
+      profile.licenseId = profileDto.licenseId;
+    }
+
     if (profileDto.professionalPrefix !== undefined) profile.professionalPrefix = profileDto.professionalPrefix;
     if (profileDto.specialty !== undefined) profile.specialty = profileDto.specialty;
     if (profileDto.workingDays !== undefined) profile.workingDays = profileDto.workingDays;

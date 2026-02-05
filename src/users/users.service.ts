@@ -37,7 +37,7 @@ export class UsersService {
     const hashedPassword = await bcrypt.hash(userDto.password, saltRounds);
 
     const professionalRole = await manager.findOne(Role, { where: { value: "professional" } });
-    if (!professionalRole) throw new HttpException("Rol profesional no encontrado", HttpStatus.BAD_REQUEST);
+    if (!professionalRole) throw new HttpException("Rol de profesional no encontrado", HttpStatus.BAD_REQUEST);
 
     const user = manager.create(User, {
       ...userDto,
@@ -60,7 +60,7 @@ export class UsersService {
     const hashedPassword = await bcrypt.hash(userDto.password, saltRounds);
 
     const patientRole = await manager.findOne(Role, { where: { value: "patient" } });
-    if (!patientRole) throw new HttpException("Rol no encontrado", HttpStatus.BAD_REQUEST);
+    if (!patientRole) throw new HttpException("Rol de paciente no encontrado", HttpStatus.BAD_REQUEST);
 
     const user = manager.create(User, {
       ...userDto,

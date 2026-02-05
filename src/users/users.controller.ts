@@ -119,11 +119,22 @@ export class UsersController {
   findProfessionalSoftRemovedWithProfile(@BusinessId(ParseUUIDPipe) businessId: string, @Param("id") id: string) {
     return this.usersService.findProfessionalSoftRemovedWithProfile(businessId, id);
   }
+  @RequiredPermissions("professional-view")
+  @Get(":id/professional/profile")
+  findProfessionalWithProfile(@Param("id") id: string, @BusinessId(ParseUUIDPipe) businessId: string) {
+    return this.usersService.findProfessionalWithProfile(id, businessId);
+  }
 
   @RequiredPermissions(["admin-view", "patient-view", "professional-view"], "some")
   @Get(":id")
   findOne(@Param("id", ParseUUIDPipe) id: string, @BusinessId() businessId: string) {
     return this.usersService.findOne(id, businessId);
+  }
+
+  @RequiredPermissions("professional-restore")
+  @Patch(":id/professional/restore")
+  restoreProfessional(@Param("id", ParseUUIDPipe) id: string, @BusinessId(ParseUUIDPipe) businessId: string) {
+    return this.restoreProfessionalUseCase.execute(id, businessId);
   }
 
   @RequiredPermissions("professional-update")
@@ -134,12 +145,6 @@ export class UsersController {
     @BusinessId() businessId: string,
   ) {
     return this.updateProfessionalUseCase.execute(id, businessId, updateProfessionalDto);
-  }
-
-  @RequiredPermissions("professional-restore")
-  @Patch(":id/professional/restore")
-  restoreProfessional(@Param("id", ParseUUIDPipe) id: string, @BusinessId(ParseUUIDPipe) businessId: string) {
-    return this.restoreProfessionalUseCase.execute(id, businessId);
   }
 
   @RequiredPermissions(["admin-update", "patient-update", "professional-update"], "some")

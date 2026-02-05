@@ -262,9 +262,10 @@ export class UsersService {
       user.ic = updateUserDto.ic;
     }
 
-    if (updateUserDto.userName !== undefined) {
-      throw new HttpException("Must check username availability", HttpStatus.BAD_REQUEST);
-      // user.userName = updateUserDto.userName;
+    if (updateUserDto.userName !== undefined && updateUserDto.userName !== user.userName) {
+      const existingUsername = await this.checkUsernameAvailability(updateUserDto.userName, businessId);
+      if (existingUsername) throw new HttpException("Nombre de usuario ya registrado", HttpStatus.BAD_REQUEST);
+      user.userName = updateUserDto.userName;
     }
 
     if (updateUserDto.email !== undefined) {

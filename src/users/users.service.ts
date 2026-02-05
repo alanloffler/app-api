@@ -257,19 +257,19 @@ export class UsersService {
     if (!user) throw new HttpException("Profesional no encontrado", HttpStatus.NOT_FOUND);
 
     if (updateUserDto.ic !== undefined && updateUserDto.ic !== user.ic) {
-      const existingIc = await this.checkIcAvailability(updateUserDto.ic, businessId);
+      const existingIc = await manager.findOne(User, { where: { businessId, ic: updateUserDto.ic } });
       if (existingIc) throw new HttpException("DNI ya registrado", HttpStatus.BAD_REQUEST);
       user.ic = updateUserDto.ic;
     }
 
     if (updateUserDto.userName !== undefined && updateUserDto.userName !== user.userName) {
-      const existingUsername = await this.checkUsernameAvailability(updateUserDto.userName, businessId);
+      const existingUsername = await manager.findOne(User, { where: { businessId, userName: updateUserDto.userName } });
       if (existingUsername) throw new HttpException("Nombre de usuario ya registrado", HttpStatus.BAD_REQUEST);
       user.userName = updateUserDto.userName;
     }
 
     if (updateUserDto.email !== undefined && updateUserDto.email !== user.email) {
-      const existingEmail = await this.checkEmailAvailability(updateUserDto.email, businessId);
+      const existingEmail = await manager.findOne(User, { where: { businessId, email: updateUserDto.email } });
       if (existingEmail) throw new HttpException("Email ya registrado", HttpStatus.BAD_REQUEST);
       user.email = updateUserDto.email;
     }

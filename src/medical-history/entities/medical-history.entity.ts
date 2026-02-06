@@ -44,6 +44,9 @@ export class MedicalHistory {
   @Column({ default: false, type: "boolean", nullable: false })
   recipe: boolean;
 
+  @Column({ type: "varchar", nullable: false })
+  comments: string;
+
   @CreateDateColumn({ name: "created_at" })
   createdAt: Date;
 

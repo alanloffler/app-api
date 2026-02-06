@@ -15,6 +15,7 @@ import {
 
 import { Business } from "@business/entities/business.entity";
 import { MedicalHistory } from "@medical-history/entities/medical-history.entity";
+import { PatientProfile } from "@patient-profile/entities/patient-profile.entity";
 import { ProfessionalProfile } from "@professional-profile/entities/professional-profile.entity";
 import { Role } from "@roles/entities/role.entity";
 
@@ -66,6 +67,9 @@ export class User {
 
   @OneToOne(() => ProfessionalProfile, (profile) => profile.user)
   professionalProfile?: ProfessionalProfile;
+
+  @OneToOne(() => PatientProfile, (profile) => profile.user)
+  patientProfile?: PatientProfile;
 
   @OneToMany(() => MedicalHistory, (medicalHistory) => medicalHistory.user)
   medicalHistory?: MedicalHistory[];

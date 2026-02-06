@@ -15,6 +15,11 @@ export class CreateMedicalHistoryDto {
   @Transform(({ value }) => value?.trim())
   reason: string;
 
+  @Length(3, 50, { message: "Los comentarios deben tener entre 3 y 50 caracteres" })
+  @IsString({ message: "Los comentarios deben ser una cadena de texto" })
+  @Transform(({ value }) => value?.trim())
+  comments: string;
+
   @IsBoolean({ message: "La receta del turno debe ser un booleano" })
   @IsOptional()
   recipe?: boolean;

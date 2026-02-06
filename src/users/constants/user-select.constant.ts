@@ -13,6 +13,19 @@ export const USER_SELECT = [
   "user.deletedAt",
 ];
 
+export const PATIENT_PROFILE_SELECT = [
+  "profile.birthDay",
+  "profile.bloodType",
+  "profile.createdAt",
+  "profile.emergencyContactPhone",
+  "profile.emergencyContactName",
+  "profile.gender",
+  "profile.height",
+  "profile.id",
+  "profile.updatedAt",
+  "profile.weight",
+];
+
 export const PROFESSIONAL_PROFILE_SELECT = [
   "profile.id",
   "profile.licenseId",

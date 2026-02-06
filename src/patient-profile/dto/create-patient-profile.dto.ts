@@ -23,7 +23,7 @@ export class CreatePatientProfileDto {
   @Transform(({ value }) => (typeof value === "string" ? Number(value.replace(",", ".")) : value))
   @IsNumber({ maxDecimalPlaces: 3 }, { message: "El peso debe ser un número válido" })
   @Min(0.001, { message: "El peso debe ser mayor o igual a 0,001 kg" })
-  @Max(999.99, { message: "El peso debe ser menor o igual a 999,99 kg" })
+  @Max(999.999, { message: "El peso debe ser menor o igual a 999,999 kg" })
   @IsNotEmpty({ message: "El peso es obligatorio" })
   weight: number;
 

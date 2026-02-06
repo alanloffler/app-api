@@ -104,10 +104,11 @@ export class UsersController {
     return this.usersService.findPatientWithHistory(businessId, id);
   }
 
+  // Find patient soft removed with profile and history
   @RequiredPermissions("patient-view")
-  @Get("patient-soft-removed-history/:id")
-  findPatientSoftRemovedWithHistory(@BusinessId() businessId: string, @Param("id") id: string) {
-    return this.usersService.findPatientSoftRemovedWithHistory(businessId, id);
+  @Get(":id/patient/profile/soft")
+  findPatientSoftRemovedWithProfile(@BusinessId() businessId: string, @Param("id") id: string) {
+    return this.usersService.findPatientSoftRemovedWithProfile(businessId, id);
   }
 
   @RequiredPermissions(["admin-view", "patient-view", "professional-view"], "some")

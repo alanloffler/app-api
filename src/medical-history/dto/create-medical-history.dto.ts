@@ -23,7 +23,7 @@ export class CreateMedicalHistoryDto {
   @Transform(({ value }) => value?.trim())
   reason: string;
 
-  @Length(3, 50, { message: "Los comentarios deben tener entre 3 y 50 caracteres" })
+  @Length(3, 1000, { message: "Los comentarios deben tener entre 3 y 1000 caracteres" })
   @IsString({ message: "Los comentarios deben ser una cadena de texto" })
   @Transform(({ value }) => value?.trim())
   comments: string;

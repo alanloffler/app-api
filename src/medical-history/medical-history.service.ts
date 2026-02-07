@@ -20,10 +20,12 @@ export class MedicalHistoryService {
     // TODO:
     // 1. Check userId existence
     // 2. Check eventId existence
-    const createDto = { ...createMedicalHistoryDto, businessId };
+    const { eventId, ...rest } = createMedicalHistoryDto;
+    const createDto = { ...rest, businessId, ...(eventId && { eventId }) };
+
     const history = this.medicalHistoryRepository.create(createDto);
     const saveHistory = await this.medicalHistoryRepository.save(history);
-    if (!saveHistory) throw new HttpException("Error al crear el historial", HttpStatus.BAD_REQUEST);
+    if (!saveHistory) throw new HttpException("Error al crear el la historia médica", HttpStatus.BAD_REQUEST);
 
     return ApiResponse.created<MedicalHistory>("Historial creado", history);
   }

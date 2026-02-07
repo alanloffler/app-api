@@ -6,9 +6,17 @@ export class CreateMedicalHistoryDto {
   @IsNotEmpty({ message: "El id del paciente es obligatorio" })
   userId: string;
 
+  @IsUUID(4, { message: "El id del negocio debe ser un UUID" })
+  @IsNotEmpty({ message: "El id del negocio es obligatorio" })
+  businessId: string;
+
   @IsUUID(4, { message: "El id del turno debe ser un UUID" })
   @IsOptional()
   eventId?: string;
+
+  @Transform(({ value }) => new Date(value))
+  @IsNotEmpty({ message: "La fecha es obligatoria" })
+  date: Date;
 
   @Length(3, 50, { message: "El motivo debe tener entre 3 y 50 caracteres" })
   @IsString({ message: "El motivo debe ser una cadena de texto" })

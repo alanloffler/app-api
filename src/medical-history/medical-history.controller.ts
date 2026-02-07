@@ -15,14 +15,14 @@ export class MedicalHistoryController {
     return this.medicalHistoryService.create(businessId, createMedicalHistoryDto);
   }
 
-  @Get("patient/:id")
-  findAllByPatient(@BusinessId(ParseUUIDPipe) businessId: string, @Param("id") id: string) {
-    return this.medicalHistoryService.findAllByPatient(businessId, id);
-  }
-
   @Get()
   findAll(@BusinessId(ParseUUIDPipe) businessId: string) {
     return this.medicalHistoryService.findAll(businessId);
+  }
+
+  @Get(":id/patient")
+  findAllByPatient(@BusinessId(ParseUUIDPipe) businessId: string, @Param("id") id: string) {
+    return this.medicalHistoryService.findAllByPatient(businessId, id);
   }
 
   @Get(":id")

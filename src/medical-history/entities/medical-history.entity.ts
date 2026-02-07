@@ -31,6 +31,9 @@ export class MedicalHistory {
   @JoinColumn({ name: "user_id" })
   user: User;
 
+  @Column({ type: "timestamptz", nullable: false })
+  date: Date;
+
   @Column({ name: "event_id", type: "uuid", nullable: true })
   eventId: string;
 

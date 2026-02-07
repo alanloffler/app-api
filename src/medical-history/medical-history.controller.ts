@@ -1,11 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from "@nestjs/common";
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, UseGuards } from "@nestjs/common";
 
 import { BusinessId } from "@common/decorators/business-id.decorator";
 import { CreateMedicalHistoryDto } from "@medical-history/dto/create-medical-history.dto";
+import { JwtAuthGuard } from "@auth/guards/jwt-auth.guard";
 import { MedicalHistoryService } from "@medical-history/medical-history.service";
+import { PermissionsGuard } from "@auth/guards/permissions.guard";
 import { UpdateMedicalHistoryDto } from "@medical-history/dto/update-medical-history.dto";
 
-// TODO: auth & permissions
+// TODO: manage controllers permissions
+@UseGuards(JwtAuthGuard, PermissionsGuard)
 @Controller("medical-history")
 export class MedicalHistoryController {
   constructor(private readonly medicalHistoryService: MedicalHistoryService) {}

@@ -5,6 +5,7 @@ import { CreateMedicalHistoryDto } from "@medical-history/dto/create-medical-his
 import { JwtAuthGuard } from "@auth/guards/jwt-auth.guard";
 import { MedicalHistoryService } from "@medical-history/medical-history.service";
 import { PermissionsGuard } from "@auth/guards/permissions.guard";
+import { RequiredPermissions } from "@auth/decorators/required-permissions.decorator";
 import { UpdateMedicalHistoryDto } from "@medical-history/dto/update-medical-history.dto";
 
 // TODO: manage controllers permissions
@@ -13,6 +14,7 @@ import { UpdateMedicalHistoryDto } from "@medical-history/dto/update-medical-his
 export class MedicalHistoryController {
   constructor(private readonly medicalHistoryService: MedicalHistoryService) {}
 
+  @RequiredPermissions("medical_history-create")
   @Post()
   create(@BusinessId(ParseUUIDPipe) businessId: string, @Body() createMedicalHistoryDto: CreateMedicalHistoryDto) {
     return this.medicalHistoryService.create(businessId, createMedicalHistoryDto);
@@ -23,6 +25,7 @@ export class MedicalHistoryController {
     return this.medicalHistoryService.findAll(businessId);
   }
 
+  @RequiredPermissions("medical_history-view")
   @Get(":id/patient")
   findAllByPatient(@BusinessId(ParseUUIDPipe) businessId: string, @Param("id") id: string) {
     return this.medicalHistoryService.findAllByPatient(businessId, id);

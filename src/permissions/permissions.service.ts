@@ -89,6 +89,7 @@ export class PermissionsService {
       admin: "Administradores",
       calendar: "Agenda",
       events: "Turnos",
+      medical_history: "Historias médicas",
       patient: "Pacientes",
       permissions: "Permisos",
       professional: "Profesionales",
